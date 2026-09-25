@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import { enterpriseStartups, activeVCThesis } from "@/lib/data/enterprise-dataset";
-import { StartupEntity } from "@/types/domain";
+import { StartupEntity, DealStage } from "@/types/domain";
 import { DynamicWeights, recomputeStartupBatch } from "@/lib/engine/scoring";
+import { sendSlackDealAlert } from "@/lib/engine/slack-webhook";
 import { EnterpriseNavbar } from "@/components/navigation/enterprise-navbar";
 import { SignalTableRow } from "@/components/dashboard/signal-table-row";
 import { ThesisMatrixSlider } from "@/components/dashboard/thesis-matrix-slider";
@@ -24,7 +25,18 @@ import {
   ExternalLink,
   ShieldAlert,
   ArrowRight,
+  TrendingUp,
 } from "lucide-react";
+
+const PIPELINE_COLUMNS: { id: DealStage; label: string; color: string }[] = [
+  { id: "NEW_SIGNAL", label: "NUEVAS SEÑALES", color: "text-neutral-400" },
+  { id: "AI_QUALIFIED", label: "CALIFICADO POR IA", color: "text-cyan-400" },
+  { id: "SAVED_FOR_REVIEW", label: "EN REVISIÓN", color: "text-amber-400" },
+  { id: "OUTREACH_PENDING", label: "OUTREACH PENDIENTE", color: "text-emerald-400" },
+  { id: "CONTACTED", label: "CONTACTADO", color: "text-violet-400" },
+  { id: "PASSED", label: "DESCARTADO", color: "text-rose-400" },
+  { id: "INVESTED", label: "INVERTIDO", color: "text-emerald-300" },
+];
 
 export default function EnterpriseDashboard() {
   const [startups, setStartups] = useState<StartupEntity[]>(enterpriseStartups);
@@ -51,6 +63,21 @@ export default function EnterpriseDashboard() {
     setStartups(updated);
   };
 
+  // Deal Stage Update Handler (RLHF & Kanban sync)
+  const handleUpdateStage = (startupId: string, stage: DealStage, reason?: string) => {
+    setStartups((prev) =>
+      prev.map((s) => (s.id === startupId ? { ...s, pipelineStatus: stage } : s))
+    );
+
+    if (stage === "OUTREACH_PENDING") {
+      const target = startups.find((s) => s.id === startupId);
+      if (target && target.evaluation.matchScore >= 85) {
+        sendSlackDealAlert(target);
+        showToast(`🚨 Alerta visual enviada a Slack (#deals-high-conviction) para ${target.name}`);
+      }
+    }
+  };
+
   // Simulate Ingestion Scan
   const handleTriggerScan = () => {
     setIsScanning(true);
@@ -58,7 +85,7 @@ export default function EnterpriseDashboard() {
 
     setTimeout(() => {
       setIsScanning(false);
-      showToast("Ingesta finalizada: 1 nueva startup en stealth detectada y evaluada.");
+      showToast("Ingesta finalizada: Series temporales de estrellas actualizadas.");
     }, 2200);
   };
 
@@ -213,7 +240,7 @@ export default function EnterpriseDashboard() {
               }`}
             >
               <Kanban className="w-3.5 h-3.5" />
-              <span>Pipeline Kanban</span>
+              <span>Pipeline Kanban (7 Estados)</span>
             </button>
           </div>
         </div>
@@ -250,26 +277,20 @@ export default function EnterpriseDashboard() {
           </div>
         )}
 
-        {/* View 2: Pipeline Kanban Board */}
+        {/* View 2: Pipeline Kanban Board (Exact 7 VC Stages) */}
         {activeTab === "kanban" && (
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {[
-              { id: "sourced", label: "SOURCED (SEÑAL)", color: "text-neutral-400" },
-              { id: "root_enriched", label: "ENRIQUECIDO", color: "text-cyan-400" },
-              { id: "thesis_matched", label: "MATCH CON TESIS", color: "text-emerald-400" },
-              { id: "ic_review", label: "COMITÉ (IC)", color: "text-violet-400" },
-              { id: "term_sheet", label: "TERM SHEET", color: "text-amber-400" },
-            ].map((col) => {
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-3 overflow-x-auto pb-4">
+            {PIPELINE_COLUMNS.map((col) => {
               const colStartups = startups.filter(
-                (s) => (s.pipelineStage || "sourced") === col.id
+                (s) => s.pipelineStatus === col.id
               );
               return (
                 <div
                   key={col.id}
-                  className="glass-panel p-3.5 rounded-2xl border border-white/5 space-y-3 min-h-[320px]"
+                  className="glass-panel p-3 rounded-2xl border border-white/5 space-y-2.5 min-w-[200px] min-h-[360px]"
                 >
                   <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                    <span className={`text-[10px] font-mono font-bold ${col.color}`}>
+                    <span className={`text-[10px] font-mono font-bold truncate ${col.color}`}>
                       {col.label}
                     </span>
                     <span className="text-[10px] font-mono text-neutral-500">
@@ -277,7 +298,7 @@ export default function EnterpriseDashboard() {
                     </span>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {colStartups.map((s) => (
                       <div
                         key={s.id}
@@ -285,19 +306,19 @@ export default function EnterpriseDashboard() {
                         className="p-3 rounded-xl bg-black/40 hover:bg-black/70 border border-white/5 hover:border-white/15 transition-all cursor-pointer space-y-2 group"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-semibold text-xs text-white group-hover:text-emerald-400">
+                          <span className="font-semibold text-xs text-white group-hover:text-emerald-400 truncate">
                             {s.name}
                           </span>
                           <span className="text-[10px] font-mono font-bold text-emerald-400">
                             {s.evaluation.matchScore}%
                           </span>
                         </div>
-                        <p className="text-[11px] text-neutral-400 line-clamp-2">
+                        <p className="text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">
                           {s.oneLiner}
                         </p>
                         <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500 pt-1 border-t border-white/5">
-                          <span>{s.domain}</span>
-                          <span className="text-amber-300">+{s.githubStars7d} ⭐</span>
+                          <span className="truncate">{s.domain}</span>
+                          <span className="text-amber-300 whitespace-nowrap">+{s.githubStars7d} ⭐</span>
                         </div>
                       </div>
                     ))}
@@ -323,6 +344,7 @@ export default function EnterpriseDashboard() {
           setMemoStartup(s);
         }}
         onSyncCRM={handleSyncCRM}
+        onUpdateStage={handleUpdateStage}
       />
 
       <AgentStreamDrawer

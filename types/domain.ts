@@ -1,6 +1,7 @@
 // ============================================================================
 // PANDO DOMAIN MODEL & ENTITY DEFINITIONS
 // Industrial Grade TypeScript Schemas (Harmonic.ai / Crustdata Architecture)
+// Includes Time-Series, VC Pipeline Stages, RLHF Feedback & Team Overlap Graph
 // ============================================================================
 
 export type SignalType =
@@ -18,6 +19,21 @@ export type SignalSource =
   | "npm_registry"
   | "hackernews_api";
 
+export type DealStage =
+  | "NEW_SIGNAL"
+  | "AI_QUALIFIED"
+  | "SAVED_FOR_REVIEW"
+  | "OUTREACH_PENDING"
+  | "CONTACTED"
+  | "PASSED"
+  | "INVESTED";
+
+export interface TeamOverlap {
+  coFounderName: string;
+  previousCompany: string;
+  yearsOverlapped: number;
+}
+
 export interface Founder {
   id: string;
   startupId?: string;
@@ -31,6 +47,24 @@ export interface Founder {
   academicBackground?: { degree: string; institution: string }[];
   avatarUrl?: string;
   pedigreeScore?: number; // 0-100
+  teamOverlapMatrix?: TeamOverlap[];
+}
+
+export interface MetricTimeSeriesPoint {
+  id?: number;
+  metricType: "github_stars" | "linkedin_headcount" | "engineering_headcount" | "web_traffic";
+  value: number;
+  recordedAt: string;
+}
+
+export interface FeedbackLog {
+  id: string;
+  startupId: string;
+  evaluationId?: string;
+  userAction: "ACCEPTED" | "REJECTED" | "FALSE_POSITIVE";
+  rejectionReason?: "Too early" | "Market too small" | "Not technical team" | "Out of thesis" | string;
+  userNotes?: string;
+  createdAt: string;
 }
 
 export interface Signal {
@@ -65,10 +99,10 @@ export interface ThesisParameters {
     requireTechnicalFounder: boolean;
   };
   scoringWeights: {
-    teamPedigree: number;      // e.g. 0.35
-    technicalVelocity: number; // e.g. 0.30
-    thesisVectorFit: number;   // e.g. 0.20
-    earlyTraction: number;     // e.g. 0.15
+    teamPedigree: number;
+    technicalVelocity: number;
+    thesisVectorFit: number;
+    earlyTraction: number;
   };
   isActive: boolean;
   createdAt?: string;
@@ -112,17 +146,26 @@ export interface StartupEntity {
   createdAt: string;
   updatedAt: string;
 
+  // VC Workflow Pipeline Status
+  pipelineStatus: DealStage;
+
   // Joined / Enriched Aggregations
   founders: Founder[];
   signals: Signal[];
   evaluation: ThesisEvaluation;
+  timeSeries: {
+    githubStars: { day: string; value: number }[];
+    linkedinHeadcount: { day: string; value: number }[];
+    engineeringHeadcount: { day: string; value: number }[];
+    webTraffic: { day: string; value: number }[];
+  };
 
   // Real-time Velocity Telemetry (Computed)
   githubStars7d: number;
   commitVelocity: string;
   founderPedigree: string[];
   hasRedFlags: boolean;
-  pipelineStage?: "sourced" | "root_enriched" | "thesis_matched" | "ic_review" | "term_sheet";
+  feedbackHistory?: FeedbackLog[];
 }
 
 export interface AgentLiveLog {

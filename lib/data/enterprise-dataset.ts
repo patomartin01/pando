@@ -1,5 +1,5 @@
 // ============================================================================
-// PANDO ENTERPRISE DATASET
+// PANDO ENTERPRISE DATASET (CRUSTDATA & HARMONIC TIME-SERIES + RLHF)
 // Realistic, high-signal pre-seed/seed startups matching Harmonic.ai / Crustdata standards
 // ============================================================================
 
@@ -31,6 +31,7 @@ export const enterpriseStartups: StartupEntity[] = [
     name: "UnicornDB",
     domain: "unicorndb.ai",
     stealthStatus: true,
+    pipelineStatus: "AI_QUALIFIED",
     oneLiner: "Distributed sub-10ms vector database on accelerated GPU/FPGA hardware",
     fullDescription:
       "UnicornDB is an ultra-low latency distributed vector database written in Rust that achieves sub-10ms similarity queries across datasets exceeding 10 billion embeddings through custom GPU/FPGA kernel acceleration.",
@@ -42,11 +43,40 @@ export const enterpriseStartups: StartupEntity[] = [
     logoUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80",
     createdAt: "2026-09-18T10:00:00Z",
     updatedAt: "2026-09-25T14:30:00Z",
-    pipelineStage: "thesis_matched",
     githubStars7d: 1350,
     commitVelocity: "+340% (140 commits / 14d)",
     founderPedigree: ["Ex-Databricks Lead Architect", "PhD Stanford CS"],
     hasRedFlags: false,
+    timeSeries: {
+      githubStars: [
+        { day: "W-4", value: 120 },
+        { day: "W-3", value: 380 },
+        { day: "W-2", value: 710 },
+        { day: "W-1", value: 1150 },
+        { day: "Today", value: 1690 },
+      ],
+      linkedinHeadcount: [
+        { day: "W-4", value: 2 },
+        { day: "W-3", value: 3 },
+        { day: "W-2", value: 4 },
+        { day: "W-1", value: 6 },
+        { day: "Today", value: 7 },
+      ],
+      engineeringHeadcount: [
+        { day: "W-4", value: 2 },
+        { day: "W-3", value: 3 },
+        { day: "W-2", value: 4 },
+        { day: "W-1", value: 5 },
+        { day: "Today", value: 6 },
+      ],
+      webTraffic: [
+        { day: "W-4", value: 450 },
+        { day: "W-3", value: 1200 },
+        { day: "W-2", value: 3400 },
+        { day: "W-1", value: 8900 },
+        { day: "Today", value: 14200 },
+      ],
+    },
     founders: [
       {
         id: "f-01",
@@ -60,6 +90,13 @@ export const enterpriseStartups: StartupEntity[] = [
         previousExits: [{ company: "DataX", acquiredBy: "Databricks", year: 2022 }],
         academicBackground: [{ degree: "PhD in Distributed Systems", institution: "Stanford" }],
         avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+        teamOverlapMatrix: [
+          {
+            coFounderName: "Alex Rivera",
+            previousCompany: "Databricks",
+            yearsOverlapped: 3.5,
+          },
+        ],
       },
       {
         id: "f-02",
@@ -69,9 +106,16 @@ export const enterpriseStartups: StartupEntity[] = [
         githubHandle: "arivera-rust",
         isTechnical: true,
         pedigreeScore: 94,
-        exCompanies: ["NVIDIA", "Meta AI"],
+        exCompanies: ["Databricks", "Meta AI"],
         academicBackground: [{ degree: "MS Computer Engineering", institution: "UC Berkeley" }],
         avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+        teamOverlapMatrix: [
+          {
+            coFounderName: "Dr. Elena Rostova",
+            previousCompany: "Databricks",
+            yearsOverlapped: 3.5,
+          },
+        ],
       },
     ],
     signals: [
@@ -105,7 +149,7 @@ export const enterpriseStartups: StartupEntity[] = [
         earlyTraction: 92,
       },
       summaryBullets: [
-        "Founders are Ex-Databricks Lead Architect & NVIDIA Kernel Engineer with proven exit track record.",
+        "Founders share 3.5 years of co-working overlap at Databricks on core database engines.",
         "Exceptional GitHub velocity (+1,350 stars in 7 days) indicating massive organic developer demand.",
         "100% architectural fit with GPU-accelerated vector memory thesis for large-scale enterprise deployments.",
       ],
@@ -119,7 +163,7 @@ export const enterpriseStartups: StartupEntity[] = [
       ],
       dealbreakers: [],
       agentReasoningTrace:
-        "Triage confirmed legitimate open-source systems repo. Founder pedigree verified via LinkedIn/GitHub graph: Ex-Databricks Staff Architect (5 yrs) and Ex-NVIDIA. Zero dealbreakers.",
+        "Triage confirmed legitimate open-source systems repo. Founder overlap verified via LinkedIn graph: 3.5 years co-working at Databricks. Zero dealbreakers.",
       evaluatedAt: "2026-09-24T08:20:00Z",
     },
   },
@@ -128,6 +172,7 @@ export const enterpriseStartups: StartupEntity[] = [
     name: "KryptonZero",
     domain: "kryptonzero.dev",
     stealthStatus: true,
+    pipelineStatus: "SAVED_FOR_REVIEW",
     oneLiner: "Real-time automated red-teaming & prompt injection firewall for LLM agents",
     fullDescription:
       "KryptonZero inspects and sanitizes tool-calling payloads, dynamic contexts, and multi-agent communications at the network edge with sub-millisecond latency to block prompt injections and SSRF attacks.",
@@ -139,11 +184,40 @@ export const enterpriseStartups: StartupEntity[] = [
     logoUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=120&auto=format&fit=crop&q=80",
     createdAt: "2026-09-20T12:00:00Z",
     updatedAt: "2026-09-25T15:00:00Z",
-    pipelineStage: "root_enriched",
     githubStars7d: 890,
     commitVelocity: "+280% (96 commits / 14d)",
     founderPedigree: ["Ex-CrowdStrike Senior Staff", "Ex-Google Security"],
     hasRedFlags: false,
+    timeSeries: {
+      githubStars: [
+        { day: "W-4", value: 45 },
+        { day: "W-3", value: 160 },
+        { day: "W-2", value: 420 },
+        { day: "W-1", value: 680 },
+        { day: "Today", value: 890 },
+      ],
+      linkedinHeadcount: [
+        { day: "W-4", value: 1 },
+        { day: "W-3", value: 2 },
+        { day: "W-2", value: 3 },
+        { day: "W-1", value: 3 },
+        { day: "Today", value: 4 },
+      ],
+      engineeringHeadcount: [
+        { day: "W-4", value: 1 },
+        { day: "W-3", value: 2 },
+        { day: "W-2", value: 3 },
+        { day: "W-1", value: 3 },
+        { day: "Today", value: 4 },
+      ],
+      webTraffic: [
+        { day: "W-4", value: 200 },
+        { day: "W-3", value: 650 },
+        { day: "W-2", value: 1800 },
+        { day: "W-1", value: 4200 },
+        { day: "Today", value: 6900 },
+      ],
+    },
     founders: [
       {
         id: "f-03",
@@ -211,6 +285,7 @@ export const enterpriseStartups: StartupEntity[] = [
     name: "RayonOS",
     domain: "rayon.sh",
     stealthStatus: false,
+    pipelineStatus: "NEW_SIGNAL",
     oneLiner: "Zero-latency WASM sandbox orchestration runtime for edge AI micro-agents",
     fullDescription:
       "RayonOS provides a zero-overhead WebAssembly runtime engineered specifically for running sandboxed micro-agents on edge gateways with instant cold starts (<30 microseconds).",
@@ -222,11 +297,40 @@ export const enterpriseStartups: StartupEntity[] = [
     logoUrl: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=120&auto=format&fit=crop&q=80",
     createdAt: "2026-09-15T09:00:00Z",
     updatedAt: "2026-09-25T11:00:00Z",
-    pipelineStage: "sourced",
     githubStars7d: 1120,
     commitVelocity: "+410% (180 commits / 14d)",
     founderPedigree: ["Ex-Fastly Core Systems", "Ex-Cloudflare Workers"],
     hasRedFlags: false,
+    timeSeries: {
+      githubStars: [
+        { day: "W-4", value: 80 },
+        { day: "W-3", value: 240 },
+        { day: "W-2", value: 510 },
+        { day: "W-1", value: 890 },
+        { day: "Today", value: 1200 },
+      ],
+      linkedinHeadcount: [
+        { day: "W-4", value: 2 },
+        { day: "W-3", value: 2 },
+        { day: "W-2", value: 3 },
+        { day: "W-1", value: 4 },
+        { day: "Today", value: 5 },
+      ],
+      engineeringHeadcount: [
+        { day: "W-4", value: 2 },
+        { day: "W-3", value: 2 },
+        { day: "W-2", value: 3 },
+        { day: "W-1", value: 4 },
+        { day: "Today", value: 5 },
+      ],
+      webTraffic: [
+        { day: "W-4", value: 300 },
+        { day: "W-3", value: 900 },
+        { day: "W-2", value: 2500 },
+        { day: "W-1", value: 6800 },
+        { day: "Today", value: 11500 },
+      ],
+    },
     founders: [
       {
         id: "f-04",
@@ -293,6 +397,7 @@ export const enterpriseStartups: StartupEntity[] = [
     name: "NexusTelemetry",
     domain: "nexustelemetry.io",
     stealthStatus: false,
+    pipelineStatus: "OUTREACH_PENDING",
     oneLiner: "OpenTelemetry continuous profiling & cost attribution for GPU compute clusters",
     fullDescription:
       "NexusTelemetry correlates LLM model training runs with exact GPU memory, tensor core saturation, and dollar cloud cost per request in real-time.",
@@ -304,11 +409,40 @@ export const enterpriseStartups: StartupEntity[] = [
     logoUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&auto=format&fit=crop&q=80",
     createdAt: "2026-09-10T08:00:00Z",
     updatedAt: "2026-09-25T10:00:00Z",
-    pipelineStage: "ic_review",
     githubStars7d: 650,
     commitVelocity: "+190% (72 commits / 14d)",
     founderPedigree: ["Ex-Datadog Director of Eng", "Ex-Stripe"],
     hasRedFlags: false,
+    timeSeries: {
+      githubStars: [
+        { day: "W-4", value: 110 },
+        { day: "W-3", value: 290 },
+        { day: "W-2", value: 450 },
+        { day: "W-1", value: 580 },
+        { day: "Today", value: 650 },
+      ],
+      linkedinHeadcount: [
+        { day: "W-4", value: 3 },
+        { day: "W-3", value: 4 },
+        { day: "W-2", value: 5 },
+        { day: "W-1", value: 7 },
+        { day: "Today", value: 8 },
+      ],
+      engineeringHeadcount: [
+        { day: "W-4", value: 2 },
+        { day: "W-3", value: 3 },
+        { day: "W-2", value: 4 },
+        { day: "W-1", value: 5 },
+        { day: "Today", value: 6 },
+      ],
+      webTraffic: [
+        { day: "W-4", value: 800 },
+        { day: "W-3", value: 2100 },
+        { day: "W-2", value: 4500 },
+        { day: "W-1", value: 7200 },
+        { day: "Today", value: 9800 },
+      ],
+    },
     founders: [
       {
         id: "f-05",
@@ -373,6 +507,7 @@ export const enterpriseStartups: StartupEntity[] = [
     name: "AuraCommerce",
     domain: "auracommerce.shop",
     stealthStatus: false,
+    pipelineStatus: "PASSED",
     oneLiner: "AI-generated product photo studio for Shopify merchants",
     fullDescription:
       "AuraCommerce generates lifestyle catalog images for fast fashion Shopify store owners using fine-tuned diffusion models.",
@@ -383,11 +518,40 @@ export const enterpriseStartups: StartupEntity[] = [
     logoUrl: "https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=120&auto=format&fit=crop&q=80",
     createdAt: "2026-09-12T14:00:00Z",
     updatedAt: "2026-09-25T09:00:00Z",
-    pipelineStage: "sourced",
     githubStars7d: 45,
     commitVelocity: "+20% (8 commits / 14d)",
     founderPedigree: ["Ex-Digital Marketing Agency"],
     hasRedFlags: true,
+    timeSeries: {
+      githubStars: [
+        { day: "W-4", value: 10 },
+        { day: "W-3", value: 20 },
+        { day: "W-2", value: 30 },
+        { day: "W-1", value: 40 },
+        { day: "Today", value: 45 },
+      ],
+      linkedinHeadcount: [
+        { day: "W-4", value: 1 },
+        { day: "W-3", value: 1 },
+        { day: "W-2", value: 1 },
+        { day: "W-1", value: 1 },
+        { day: "Today", value: 1 },
+      ],
+      engineeringHeadcount: [
+        { day: "W-4", value: 0 },
+        { day: "W-3", value: 0 },
+        { day: "W-2", value: 0 },
+        { day: "W-1", value: 0 },
+        { day: "Today", value: 0 },
+      ],
+      webTraffic: [
+        { day: "W-4", value: 120 },
+        { day: "W-3", value: 180 },
+        { day: "W-2", value: 210 },
+        { day: "W-1", value: 240 },
+        { day: "Today", value: 250 },
+      ],
+    },
     founders: [
       {
         id: "f-06",
