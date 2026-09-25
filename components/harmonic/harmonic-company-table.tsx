@@ -161,7 +161,7 @@ export function HarmonicCompanyTable({
 
                   {/* Growth Signals Column */}
                   <td className="py-4 px-4 align-top">
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold text-xs shadow-sm">
                           <TrendingUp className="w-3 h-3 text-emerald-400" />
@@ -171,9 +171,62 @@ export function HarmonicCompanyTable({
                           {startup.commitVelocity}
                         </span>
                       </div>
-                      <div className="text-[10px] text-neutral-400">
-                        Headcount: {startup.timeSeries ? startup.timeSeries.linkedinHeadcount.slice(-1)[0]?.value : 4} eng
-                      </div>
+
+                      {/* Mini SVG Sparkline */}
+                      {startup.timeSeries?.githubStars && (
+                        <div className="flex items-center gap-2 pt-0.5">
+                          <svg className="w-20 h-5 overflow-visible" viewBox="0 0 70 20">
+                            {(() => {
+                              const pts = startup.timeSeries.githubStars;
+                              const minV = Math.min(...pts.map((p) => p.value));
+                              const maxV = Math.max(...pts.map((p) => p.value));
+                              const range = maxV - minV || 1;
+                              const coords = pts
+                                .map(
+                                  (p, idx) =>
+                                    `${(idx / (pts.length - 1 || 1)) * 70},${
+                                      18 - ((p.value - minV) / range) * 16
+                                    }`
+                                )
+                                .join(" ");
+                              return (
+                                <>
+                                  <polyline
+                                    points={coords}
+                                    fill="none"
+                                    stroke="#10b981"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <circle
+                                    cx="70"
+                                    cy={
+                                      18 -
+                                      ((pts[pts.length - 1].value - minV) / range) * 16
+                                    }
+                                    r="2.5"
+                                    fill="#34d399"
+                                    className="animate-ping"
+                                  />
+                                  <circle
+                                    cx="70"
+                                    cy={
+                                      18 -
+                                      ((pts[pts.length - 1].value - minV) / range) * 16
+                                    }
+                                    r="2"
+                                    fill="#34d399"
+                                  />
+                                </>
+                              );
+                            })()}
+                          </svg>
+                          <span className="text-[9px] font-mono text-emerald-400 font-bold">
+                            30D VELOCITY
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </td>
 

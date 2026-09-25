@@ -3,13 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --color-canvas: #08090a;
-  --color-surface: #12141a;
-  --color-surface-hover: #1a1d26;
-  --color-border-subtle: rgba(255, 255, 255, 0.08);
-  --color-border-bright: rgba(255, 255, 255, 0.18);
+  --color-canvas: #04060a;
+  --color-surface: #0a0e17;
+  --color-surface-hover: #111827;
+  --color-border-subtle: rgba(255, 255, 255, 0.07);
+  --color-border-bright: rgba(255, 255, 255, 0.16);
   
-  /* Status Accents with Glow */
   --color-match-high: #10b981;
   --color-match-medium: #f59e0b;
   --color-match-low: #ef4444;
@@ -17,53 +16,127 @@
 }
 
 body {
-  background-color: #08090a;
+  background-color: #04060a;
   color: #f1f5f9;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
 }
 
-/* Linear & Vercel Style Glass Panels */
+/* Background Cyber Grid */
+.cyber-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+.radar-grid {
+  background-image: radial-gradient(circle, rgba(16, 185, 129, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Aurora Glow Meshes */
+.aurora-mesh {
+  position: absolute;
+  filter: blur(120px);
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 9999px;
+  animation: floatAurora 12s ease-in-out infinite alternate;
+}
+
+@keyframes floatAurora {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, -30px) scale(1.1); }
+  100% { transform: translate(-40px, 40px) scale(0.95); }
+}
+
+/* Radar Sweep Animation */
+@keyframes radarSweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-radar-sweep {
+  transform-origin: center center;
+  animation: radarSweep 6s linear infinite;
+}
+
+/* Marquee Animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Glass Panels */
 .glass-panel {
-  background: rgba(18, 20, 26, 0.78);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 14, 23, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-panel-hover:hover {
-  background: rgba(26, 29, 38, 0.88);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(15, 22, 36, 0.88);
+  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -10px rgba(16, 185, 129, 0.15);
 }
 
-/* Glow Effects */
+/* Glowing Neon Borders */
 .glow-emerald {
-  box-shadow: 0 0 16px -2px rgba(16, 185, 129, 0.35);
-}
-
-.glow-violet {
-  box-shadow: 0 0 18px -2px rgba(124, 58, 237, 0.45);
-}
-
-.glow-amber {
-  box-shadow: 0 0 16px -2px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 20px -2px rgba(16, 185, 129, 0.35);
 }
 
 .glow-cyan {
-  box-shadow: 0 0 16px -2px rgba(6, 182, 212, 0.35);
+  box-shadow: 0 0 20px -2px rgba(6, 182, 212, 0.35);
 }
 
-/* Custom Scrollbar for dense high-frequency data feeds */
+.glow-violet {
+  box-shadow: 0 0 22px -2px rgba(139, 92, 246, 0.4);
+}
+
+.glow-amber {
+  box-shadow: 0 0 20px -2px rgba(245, 158, 11, 0.35);
+}
+
+/* Neon Pulse Indicator */
+@keyframes neonPulse {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px #10b981); }
+  50% { opacity: 0.4; filter: drop-shadow(0 0 1px #10b981); }
+}
+
+.animate-neon-pulse {
+  animation: neonPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #08090a;
+  background: #04060a;
 }
 ::-webkit-scrollbar-thumb {
   background: #1e293b;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #10b981;
 }

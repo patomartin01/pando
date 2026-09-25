@@ -7,12 +7,15 @@ import { DynamicWeights, recomputeStartupBatch } from "@/lib/engine/scoring";
 import { sendSlackDealAlert } from "@/lib/engine/slack-webhook";
 
 // Harmonic UI Components
-import { HarmonicNavbar } from "@/components/harmonic/harmonic-navbar";
+import { HarmonicNavbar, HarmonicNavView } from "@/components/harmonic/harmonic-navbar";
+import { HarmonicTickerMarquee } from "@/components/harmonic/harmonic-ticker-marquee";
 import { HarmonicFilterBar } from "@/components/harmonic/harmonic-filter-bar";
 import { HarmonicCompanyTable } from "@/components/harmonic/harmonic-company-table";
 import { HarmonicCompanyCards } from "@/components/harmonic/harmonic-company-cards";
 import { HarmonicSignalsFeed } from "@/components/harmonic/harmonic-signals-feed";
 import { HarmonicDossierModal } from "@/components/harmonic/harmonic-dossier-modal";
+import { HarmonicRadarVisualizer } from "@/components/harmonic/harmonic-radar-visualizer";
+import { HarmonicNetworkGraph } from "@/components/harmonic/harmonic-network-graph";
 
 // Existing Working Engine Modals
 import { ThesisMatrixSlider } from "@/components/dashboard/thesis-matrix-slider";
@@ -30,6 +33,8 @@ import {
   Compass,
   CheckCircle2,
   Sparkles,
+  Target,
+  Network,
 } from "lucide-react";
 
 const PIPELINE_COLUMNS: { id: DealStage; label: string; color: string }[] = [
@@ -48,8 +53,8 @@ export default function HarmonicDashboard() {
   const [outreachStartup, setOutreachStartup] = useState<StartupEntity | null>(null);
   const [memoStartup, setMemoStartup] = useState<StartupEntity | null>(null);
 
-  // Top Nav View: 'scout' | 'signals' | 'thesis' | 'kanban'
-  const [activeView, setActiveView] = useState<"scout" | "signals" | "thesis" | "kanban">("scout");
+  // Top Nav View
+  const [activeView, setActiveView] = useState<HarmonicNavView>("scout");
 
   // Scout Sub-View Mode: 'table' | 'cards' | 'kanban'
   const [viewMode, setViewMode] = useState<"table" | "cards" | "kanban">("table");
@@ -71,13 +76,13 @@ export default function HarmonicDashboard() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // Recompute scores on dynamic thesis sliders
+  // Dynamic slider weights recomputation
   const handleWeightsChange = (newWeights: DynamicWeights) => {
     const updated = recomputeStartupBatch(startups, newWeights);
     setStartups(updated);
   };
 
-  // Stage changes (RLHF & Pipeline)
+  // Deal Stage updates
   const handleUpdateStage = (startupId: string, stage: DealStage, reason?: string) => {
     setStartups((prev) =>
       prev.map((s) => (s.id === startupId ? { ...s, pipelineStatus: stage } : s))
@@ -139,7 +144,6 @@ export default function HarmonicDashboard() {
   // Filtered dataset
   const filteredStartups = useMemo(() => {
     return startups.filter((startup) => {
-      // Search
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         const matchesName = startup.name.toLowerCase().includes(q);
@@ -153,12 +157,10 @@ export default function HarmonicDashboard() {
         }
       }
 
-      // Vertical
       if (selectedVertical !== "all" && startup.primaryVertical !== selectedVertical) {
         return false;
       }
 
-      // Stage
       if (selectedStage === "stealth" && !startup.stealthStatus) {
         return false;
       }
@@ -170,13 +172,11 @@ export default function HarmonicDashboard() {
         return false;
       }
 
-      // Signal Type
       if (selectedSignalType !== "all") {
         const hasSig = startup.signals.some((s) => s.signalType === selectedSignalType);
         if (!hasSig) return false;
       }
 
-      // Min Score
       if (minScore > 0 && startup.evaluation.matchScore < minScore) {
         return false;
       }
@@ -188,8 +188,13 @@ export default function HarmonicDashboard() {
   const stealthCount = startups.filter((s) => s.stealthStatus).length;
 
   return (
-    <div className="min-h-screen bg-[#070a11] text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
-      {/* Harmonic Navbar */}
+    <div className="min-h-screen bg-[#04060b] text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black relative overflow-x-hidden">
+      {/* Dynamic Cyber Grid & Aurora Backdrops */}
+      <div className="fixed inset-0 cyber-grid pointer-events-none opacity-40 z-0" />
+      <div className="aurora-mesh top-10 left-1/4 w-[550px] h-[550px] bg-emerald-600/10" />
+      <div className="aurora-mesh bottom-10 right-1/4 w-[650px] h-[650px] bg-indigo-600/10" />
+
+      {/* Harmonic Header & Live Marquee */}
       <HarmonicNavbar
         activeView={activeView}
         onSelectView={setActiveView}
@@ -200,8 +205,10 @@ export default function HarmonicDashboard() {
         stealthCount={stealthCount}
       />
 
+      <HarmonicTickerMarquee />
+
       {/* Main Workspace Canvas */}
-      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6 relative z-10">
         {/* VIEW 1: HARMONIC SCOUT DISCOVERY (DEFAULT) */}
         {activeView === "scout" && (
           <div className="space-y-5 animate-in fade-in duration-200">
@@ -254,7 +261,7 @@ export default function HarmonicDashboard() {
                   return (
                     <div
                       key={col.id}
-                      className="rounded-2xl bg-[#0b0f17]/90 border border-white/[0.08] p-3 space-y-3 min-w-[200px]"
+                      className="rounded-2xl bg-[#080d17]/95 border border-white/[0.08] p-3 space-y-3 min-w-[200px] backdrop-blur-md"
                     >
                       <div className="flex items-center justify-between pb-2 border-b border-white/5">
                         <span className={`text-[11px] font-mono font-bold ${col.color}`}>
@@ -269,7 +276,7 @@ export default function HarmonicDashboard() {
                           <div
                             key={item.id}
                             onClick={() => setSelectedStartup(item)}
-                            className="p-3 rounded-xl bg-[#0e1422] hover:bg-[#131b2e] border border-white/5 hover:border-emerald-500/40 cursor-pointer space-y-2 transition-all"
+                            className="p-3 rounded-xl bg-[#0c1220] hover:bg-[#121b30] border border-white/5 hover:border-emerald-500/40 cursor-pointer space-y-2 transition-all shadow-md"
                           >
                             <div className="flex items-center justify-between">
                               <span className="font-bold text-xs text-white truncate max-w-[120px]">
@@ -297,7 +304,27 @@ export default function HarmonicDashboard() {
           </div>
         )}
 
-        {/* VIEW 2: LIVE SIGNALS & RADAR */}
+        {/* VIEW 2: TACTICAL AI RADAR 360° */}
+        {activeView === "radar" && (
+          <div className="animate-in fade-in duration-200">
+            <HarmonicRadarVisualizer
+              startups={startups}
+              onSelectStartup={(s) => setSelectedStartup(s)}
+            />
+          </div>
+        )}
+
+        {/* VIEW 3: TALENT DNA & OVERLAP TOPOLOGY GRAPH */}
+        {activeView === "network" && (
+          <div className="animate-in fade-in duration-200">
+            <HarmonicNetworkGraph
+              startups={startups}
+              onSelectStartup={(s) => setSelectedStartup(s)}
+            />
+          </div>
+        )}
+
+        {/* VIEW 4: LIVE SIGNALS & RADAR FEED */}
         {activeView === "signals" && (
           <div className="animate-in fade-in duration-200">
             <HarmonicSignalsFeed
@@ -307,14 +334,14 @@ export default function HarmonicDashboard() {
           </div>
         )}
 
-        {/* VIEW 3: THESIS WEIGHTING MATRIX */}
+        {/* VIEW 5: THESIS WEIGHTING MATRIX */}
         {activeView === "thesis" && (
           <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-200">
             <ThesisMatrixSlider onWeightsChange={handleWeightsChange} />
           </div>
         )}
 
-        {/* VIEW 4: DEAL PIPELINE (FULL KANBAN) */}
+        {/* VIEW 6: DEAL PIPELINE (FULL KANBAN) */}
         {activeView === "kanban" && (
           <div className="space-y-4 animate-in fade-in duration-200">
             <div className="flex items-center justify-between font-mono text-xs text-neutral-400">
@@ -330,7 +357,7 @@ export default function HarmonicDashboard() {
                 return (
                   <div
                     key={col.id}
-                    className="rounded-2xl bg-[#0b0f17]/90 border border-white/[0.08] p-3 space-y-3 min-w-[200px]"
+                    className="rounded-2xl bg-[#080d17]/95 border border-white/[0.08] p-3 space-y-3 min-w-[200px] backdrop-blur-md"
                   >
                     <div className="flex items-center justify-between pb-2 border-b border-white/5">
                       <span className={`text-[11px] font-mono font-bold ${col.color}`}>
@@ -345,7 +372,7 @@ export default function HarmonicDashboard() {
                         <div
                           key={item.id}
                           onClick={() => setSelectedStartup(item)}
-                          className="p-3 rounded-xl bg-[#0e1422] hover:bg-[#131b2e] border border-white/5 hover:border-emerald-500/40 cursor-pointer space-y-2 transition-all shadow-md"
+                          className="p-3 rounded-xl bg-[#0c1220] hover:bg-[#121b30] border border-white/5 hover:border-emerald-500/40 cursor-pointer space-y-2 transition-all shadow-md"
                         >
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-xs text-white truncate max-w-[120px]">
