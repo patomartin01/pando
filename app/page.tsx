@@ -1,31 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { enterpriseStartups, activeVCThesis } from "@/lib/data/enterprise-dataset";
 import { StartupEntity, DealStage } from "@/types/domain";
 import { DynamicWeights, recomputeStartupBatch } from "@/lib/engine/scoring";
 import { sendSlackDealAlert } from "@/lib/engine/slack-webhook";
-import { EnterpriseNavbar } from "@/components/navigation/enterprise-navbar";
-import { SignalTableRow } from "@/components/dashboard/signal-table-row";
+
+// Harmonic UI Components
+import { HarmonicNavbar } from "@/components/harmonic/harmonic-navbar";
+import { HarmonicFilterBar } from "@/components/harmonic/harmonic-filter-bar";
+import { HarmonicCompanyTable } from "@/components/harmonic/harmonic-company-table";
+import { HarmonicCompanyCards } from "@/components/harmonic/harmonic-company-cards";
+import { HarmonicSignalsFeed } from "@/components/harmonic/harmonic-signals-feed";
+import { HarmonicDossierModal } from "@/components/harmonic/harmonic-dossier-modal";
+
+// Existing Working Engine Modals
 import { ThesisMatrixSlider } from "@/components/dashboard/thesis-matrix-slider";
-import { StartupDetailModal } from "@/components/dashboard/startup-detail-modal";
-import { AgentStreamDrawer } from "@/components/dashboard/agent-stream-drawer";
 import { OutreachModal } from "@/components/dashboard/outreach-modal";
 import { MemoModal } from "@/components/dashboard/memo-modal";
 import { CommandPalette } from "@/components/dashboard/command-palette";
+
 import {
-  Activity,
-  Layers,
-  Sparkles,
-  Zap,
-  Filter,
-  CheckCircle2,
-  Table,
-  Kanban,
   ExternalLink,
   ShieldAlert,
   ArrowRight,
   TrendingUp,
+  Radio,
+  Sliders,
+  Compass,
+  CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 
 const PIPELINE_COLUMNS: { id: DealStage; label: string; color: string }[] = [
@@ -38,32 +42,42 @@ const PIPELINE_COLUMNS: { id: DealStage; label: string; color: string }[] = [
   { id: "INVESTED", label: "INVERTIDO", color: "text-emerald-300" },
 ];
 
-export default function EnterpriseDashboard() {
+export default function HarmonicDashboard() {
   const [startups, setStartups] = useState<StartupEntity[]>(enterpriseStartups);
   const [selectedStartup, setSelectedStartup] = useState<StartupEntity | null>(null);
-  const [streamStartup, setStreamStartup] = useState<StartupEntity | null>(null);
   const [outreachStartup, setOutreachStartup] = useState<StartupEntity | null>(null);
   const [memoStartup, setMemoStartup] = useState<StartupEntity | null>(null);
 
-  const [activeTab, setActiveTab] = useState<"table" | "kanban">("table");
-  const [filterMode, setFilterMode] = useState<"all" | "high_fit" | "stealth">("all");
+  // Top Nav View: 'scout' | 'signals' | 'thesis' | 'kanban'
+  const [activeView, setActiveView] = useState<"scout" | "signals" | "thesis" | "kanban">("scout");
+
+  // Scout Sub-View Mode: 'table' | 'cards' | 'kanban'
+  const [viewMode, setViewMode] = useState<"table" | "cards" | "kanban">("table");
+
+  // Filter States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedVertical, setSelectedVertical] = useState("all");
+  const [selectedStage, setSelectedStage] = useState("all");
+  const [selectedSignalType, setSelectedSignalType] = useState("all");
+  const [minScore, setMinScore] = useState(0);
+
+  // UI state
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Show Toast
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // Dynamic Slider Weight Recomputation (Client-Side Real-Time)
+  // Recompute scores on dynamic thesis sliders
   const handleWeightsChange = (newWeights: DynamicWeights) => {
     const updated = recomputeStartupBatch(startups, newWeights);
     setStartups(updated);
   };
 
-  // Deal Stage Update Handler (RLHF & Kanban sync)
+  // Stage changes (RLHF & Pipeline)
   const handleUpdateStage = (startupId: string, stage: DealStage, reason?: string) => {
     setStartups((prev) =>
       prev.map((s) => (s.id === startupId ? { ...s, pipelineStatus: stage } : s))
@@ -78,18 +92,18 @@ export default function EnterpriseDashboard() {
     }
   };
 
-  // Simulate Ingestion Scan
+  // Trigger ingestion scan simulation
   const handleTriggerScan = () => {
     setIsScanning(true);
-    showToast("Ejecutando Workers de Ingesta en Trigger.dev & GraphQL de GitHub...");
+    showToast("Ejecutando Harmonic Discovery Crawler en GitHub GraphQL y WHOIS feeds...");
 
     setTimeout(() => {
       setIsScanning(false);
-      showToast("Ingesta finalizada: Series temporales de estrellas actualizadas.");
+      showToast("Escaneo completado: 14 nuevos eventos de tracción y estrellas indexados.");
     }, 2200);
   };
 
-  // Attio CRM Sync Handler
+  // Attio CRM Sync
   const handleSyncCRM = async (startup: StartupEntity) => {
     try {
       const res = await fetch("/api/crm/sync", {
@@ -99,280 +113,311 @@ export default function EnterpriseDashboard() {
       });
       const data = await res.json();
       if (data.success) {
-        showToast(`✓ Sincronizado exitosamente con Attio CRM (${data.recordId})`);
+        showToast(`✅ ${startup.name} sincronizado exitosamente con Attio CRM (ID: ${data.attioRecordId})`);
       }
-    } catch (e) {
-      showToast("✓ Entrada creada en Attio Deal Pipeline.");
+    } catch {
+      showToast(`✅ ${startup.name} exportado a Attio CRM.`);
     }
   };
 
-  // Filtered List
-  const displayStartups = startups.filter((s) => {
-    if (filterMode === "high_fit") return s.evaluation.matchScore >= 85;
-    if (filterMode === "stealth") return s.stealthStatus;
-    return true;
-  });
+  // Rejection feedback
+  const handleRejectFeedback = async (startup: StartupEntity, reason: string) => {
+    handleUpdateStage(startup.id, "PASSED", reason);
+    setSelectedStartup(null);
+    showToast(`Descartado ${startup.name} con motivo: "${reason}". RLHF registrado.`);
+  };
+
+  // Reset filters
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setSelectedVertical("all");
+    setSelectedStage("all");
+    setSelectedSignalType("all");
+    setMinScore(0);
+  };
+
+  // Filtered dataset
+  const filteredStartups = useMemo(() => {
+    return startups.filter((startup) => {
+      // Search
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const matchesName = startup.name.toLowerCase().includes(q);
+        const matchesDomain = startup.domain.toLowerCase().includes(q);
+        const matchesFounder = startup.founders.some((f) =>
+          f.fullName.toLowerCase().includes(q)
+        );
+        const matchesDesc = startup.oneLiner.toLowerCase().includes(q);
+        if (!matchesName && !matchesDomain && !matchesFounder && !matchesDesc) {
+          return false;
+        }
+      }
+
+      // Vertical
+      if (selectedVertical !== "all" && startup.primaryVertical !== selectedVertical) {
+        return false;
+      }
+
+      // Stage
+      if (selectedStage === "stealth" && !startup.stealthStatus) {
+        return false;
+      }
+      if (
+        selectedStage !== "all" &&
+        selectedStage !== "stealth" &&
+        startup.estimatedStage !== selectedStage
+      ) {
+        return false;
+      }
+
+      // Signal Type
+      if (selectedSignalType !== "all") {
+        const hasSig = startup.signals.some((s) => s.signalType === selectedSignalType);
+        if (!hasSig) return false;
+      }
+
+      // Min Score
+      if (minScore > 0 && startup.evaluation.matchScore < minScore) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [startups, searchQuery, selectedVertical, selectedStage, selectedSignalType, minScore]);
+
+  const stealthCount = startups.filter((s) => s.stealthStatus).length;
 
   return (
-    <div className="min-h-screen bg-[#08090a] text-slate-100 font-sans selection:bg-emerald-500 selection:text-black">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 glass-panel border border-emerald-500/40 px-4 py-3 rounded-xl text-xs font-mono text-emerald-400 shadow-2xl animate-in slide-in-from-bottom duration-150 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
-      {/* Navigation */}
-      <EnterpriseNavbar
+    <div className="min-h-screen bg-[#070a11] text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
+      {/* Harmonic Navbar */}
+      <HarmonicNavbar
+        activeView={activeView}
+        onSelectView={setActiveView}
         onOpenCommand={() => setIsCommandOpen(true)}
         onTriggerScan={handleTriggerScan}
         isScanning={isScanning}
-        totalStartups={startups.length}
-        activeThesisName={activeVCThesis.name}
+        totalCompanies={startups.length}
+        stealthCount={stealthCount}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Top Telemetry Metric Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="glass-panel p-4 rounded-xl border border-white/5 space-y-1">
-            <span className="text-[10px] font-mono uppercase text-neutral-400">
-              Startups Bajo Monitoreo
-            </span>
-            <div className="text-2xl font-mono font-bold text-white flex items-center gap-2">
-              <span>{startups.length}</span>
-              <span className="text-[11px] font-normal text-emerald-400 font-mono">+2 hoy</span>
-            </div>
-          </div>
+      {/* Main Workspace Canvas */}
+      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+        {/* VIEW 1: HARMONIC SCOUT DISCOVERY (DEFAULT) */}
+        {activeView === "scout" && (
+          <div className="space-y-5 animate-in fade-in duration-200">
+            {/* Filter & Query Builder */}
+            <HarmonicFilterBar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              selectedVertical={selectedVertical}
+              onSelectVertical={setSelectedVertical}
+              selectedStage={selectedStage}
+              onSelectStage={setSelectedStage}
+              selectedSignalType={selectedSignalType}
+              onSelectSignalType={setSelectedSignalType}
+              minScore={minScore}
+              onMinScoreChange={setMinScore}
+              displayCount={filteredStartups.length}
+              totalCount={startups.length}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              onResetFilters={handleResetFilters}
+            />
 
-          <div className="glass-panel p-4 rounded-xl border border-white/5 space-y-1">
-            <span className="text-[10px] font-mono uppercase text-neutral-400">
-              Sprouts en Stealth
-            </span>
-            <div className="text-2xl font-mono font-bold text-cyan-400 flex items-center gap-2">
-              <span>{startups.filter((s) => s.stealthStatus).length}</span>
-              <span className="text-[11px] font-normal text-neutral-400 font-mono">Dominio / WHOIS</span>
-            </div>
-          </div>
+            {/* Sub-view: Table View */}
+            {viewMode === "table" && (
+              <HarmonicCompanyTable
+                startups={filteredStartups}
+                onSelectStartup={(s) => setSelectedStartup(s)}
+                onOpenOutreach={(s) => setOutreachStartup(s)}
+                onOpenMemo={(s) => setMemoStartup(s)}
+                onSyncCRM={handleSyncCRM}
+              />
+            )}
 
-          <div className="glass-panel p-4 rounded-xl border border-white/5 space-y-1">
-            <span className="text-[10px] font-mono uppercase text-neutral-400">
-              Alta Convicción (&gt;85% FIT)
-            </span>
-            <div className="text-2xl font-mono font-bold text-emerald-400 flex items-center gap-2">
-              <span>{startups.filter((s) => s.evaluation.matchScore >= 85).length}</span>
-              <span className="text-[11px] font-normal text-emerald-400 font-mono">Match Listo</span>
-            </div>
-          </div>
+            {/* Sub-view: Cards View */}
+            {viewMode === "cards" && (
+              <HarmonicCompanyCards
+                startups={filteredStartups}
+                onSelectStartup={(s) => setSelectedStartup(s)}
+                onOpenOutreach={(s) => setOutreachStartup(s)}
+                onOpenMemo={(s) => setMemoStartup(s)}
+                onSyncCRM={handleSyncCRM}
+              />
+            )}
 
-          <div className="glass-panel p-4 rounded-xl border border-white/5 space-y-1">
-            <span className="text-[10px] font-mono uppercase text-neutral-400">
-              Dealbreakers Descartados
-            </span>
-            <div className="text-2xl font-mono font-bold text-rose-400 flex items-center gap-2">
-              <span>{startups.filter((s) => s.hasRedFlags).length}</span>
-              <span className="text-[11px] font-normal text-rose-400 font-mono">Auto-Triage</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Dynamic Thesis Weights Sliders */}
-        <ThesisMatrixSlider onWeightsChange={handleWeightsChange} />
-
-        {/* Main Feed Header & View Switcher */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-          {/* Filters */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setFilterMode("all")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-colors ${
-                filterMode === "all"
-                  ? "bg-white/10 text-white font-bold border border-white/20"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              Todos los Deals ({startups.length})
-            </button>
-
-            <button
-              onClick={() => setFilterMode("high_fit")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-colors ${
-                filterMode === "high_fit"
-                  ? "bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30 glow-emerald"
-                  : "text-neutral-400 hover:text-emerald-400"
-              }`}
-            >
-              Alta Convicción &gt;85% ({startups.filter((s) => s.evaluation.matchScore >= 85).length})
-            </button>
-
-            <button
-              onClick={() => setFilterMode("stealth")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-colors ${
-                filterMode === "stealth"
-                  ? "bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/30"
-                  : "text-neutral-400 hover:text-cyan-400"
-              }`}
-            >
-              Solo Stealth ({startups.filter((s) => s.stealthStatus).length})
-            </button>
-          </div>
-
-          {/* View Mode Toggle: Table vs Kanban */}
-          <div className="flex items-center gap-1 p-1 bg-black/40 rounded-xl border border-white/10">
-            <button
-              onClick={() => setActiveTab("table")}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono transition-colors ${
-                activeTab === "table"
-                  ? "bg-white/10 text-white font-bold"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              <Table className="w-3.5 h-3.5" />
-              <span>Feed de Señales</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("kanban")}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono transition-colors ${
-                activeTab === "kanban"
-                  ? "bg-white/10 text-white font-bold"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              <Kanban className="w-3.5 h-3.5" />
-              <span>Pipeline Kanban (7 Estados)</span>
-            </button>
-          </div>
-        </div>
-
-        {/* View 1: High-Density Signal Table */}
-        {activeTab === "table" && (
-          <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-white/10 bg-black/40 text-[11px] font-mono text-neutral-400 uppercase tracking-wider">
-                    <th className="py-3 px-4">Match Score</th>
-                    <th className="py-3 px-4">Startup & Dominio</th>
-                    <th className="py-3 px-4 hidden lg:table-cell">Pedigree Fundadores</th>
-                    <th className="py-3 px-4">Señal / Velocidad 7d</th>
-                    <th className="py-3 px-4 text-right">Vertical</th>
-                    <th className="py-3 px-4 text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayStartups.map((startup) => (
-                    <SignalTableRow
-                      key={startup.id}
-                      startup={startup}
-                      onSelect={setSelectedStartup}
-                      onOpenOutreach={setOutreachStartup}
-                      onOpenMemo={setMemoStartup}
-                      onOpenAgentStream={setStreamStartup}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {/* Sub-view: Kanban View */}
+            {viewMode === "kanban" && (
+              <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-3 overflow-x-auto pb-4">
+                {PIPELINE_COLUMNS.map((col) => {
+                  const items = filteredStartups.filter((s) => s.pipelineStatus === col.id);
+                  return (
+                    <div
+                      key={col.id}
+                      className="rounded-2xl bg-[#0b0f17]/90 border border-white/[0.08] p-3 space-y-3 min-w-[200px]"
+                    >
+                      <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                        <span className={`text-[11px] font-mono font-bold ${col.color}`}>
+                          {col.label}
+                        </span>
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-neutral-400">
+                          {items.length}
+                        </span>
+                      </div>
+                      <div className="space-y-2.5">
+                        {items.map((item) => (
+                          <div
+                            key={item.id}
+                            onClick={() => setSelectedStartup(item)}
+                            className="p-3 rounded-xl bg-[#0e1422] hover:bg-[#131b2e] border border-white/5 hover:border-emerald-500/40 cursor-pointer space-y-2 transition-all"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-xs text-white truncate max-w-[120px]">
+                                {item.name}
+                              </span>
+                              <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                                {item.evaluation.matchScore}%
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-neutral-400 line-clamp-2">
+                              {item.oneLiner}
+                            </p>
+                            <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500 pt-1 border-t border-white/5">
+                              <span>+{item.githubStars7d} ⭐</span>
+                              <span>{item.countryCode}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
-        {/* View 2: Pipeline Kanban Board (Exact 7 VC Stages) */}
-        {activeTab === "kanban" && (
-          <div className="grid grid-cols-1 md:grid-cols-7 gap-3 overflow-x-auto pb-4">
-            {PIPELINE_COLUMNS.map((col) => {
-              const colStartups = startups.filter(
-                (s) => s.pipelineStatus === col.id
-              );
-              return (
-                <div
-                  key={col.id}
-                  className="glass-panel p-3 rounded-2xl border border-white/5 space-y-2.5 min-w-[200px] min-h-[360px]"
-                >
-                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                    <span className={`text-[10px] font-mono font-bold truncate ${col.color}`}>
-                      {col.label}
-                    </span>
-                    <span className="text-[10px] font-mono text-neutral-500">
-                      {colStartups.length}
-                    </span>
-                  </div>
+        {/* VIEW 2: LIVE SIGNALS & RADAR */}
+        {activeView === "signals" && (
+          <div className="animate-in fade-in duration-200">
+            <HarmonicSignalsFeed
+              startups={startups}
+              onSelectStartup={(s) => setSelectedStartup(s)}
+            />
+          </div>
+        )}
 
-                  <div className="space-y-2">
-                    {colStartups.map((s) => (
-                      <div
-                        key={s.id}
-                        onClick={() => setSelectedStartup(s)}
-                        className="p-3 rounded-xl bg-black/40 hover:bg-black/70 border border-white/5 hover:border-white/15 transition-all cursor-pointer space-y-2 group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-xs text-white group-hover:text-emerald-400 truncate">
-                            {s.name}
-                          </span>
-                          <span className="text-[10px] font-mono font-bold text-emerald-400">
-                            {s.evaluation.matchScore}%
-                          </span>
+        {/* VIEW 3: THESIS WEIGHTING MATRIX */}
+        {activeView === "thesis" && (
+          <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-200">
+            <ThesisMatrixSlider onWeightsChange={handleWeightsChange} />
+          </div>
+        )}
+
+        {/* VIEW 4: DEAL PIPELINE (FULL KANBAN) */}
+        {activeView === "kanban" && (
+          <div className="space-y-4 animate-in fade-in duration-200">
+            <div className="flex items-center justify-between font-mono text-xs text-neutral-400">
+              <span className="font-bold text-white text-sm">
+                Pipeline de Acuerdos (7 Estados de Trabajo VC)
+              </span>
+              <span>Arrastra o aprueba deals para sincronizar con Attio CRM</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-3 overflow-x-auto pb-4">
+              {PIPELINE_COLUMNS.map((col) => {
+                const items = startups.filter((s) => s.pipelineStatus === col.id);
+                return (
+                  <div
+                    key={col.id}
+                    className="rounded-2xl bg-[#0b0f17]/90 border border-white/[0.08] p-3 space-y-3 min-w-[200px]"
+                  >
+                    <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                      <span className={`text-[11px] font-mono font-bold ${col.color}`}>
+                        {col.label}
+                      </span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-neutral-400">
+                        {items.length}
+                      </span>
+                    </div>
+                    <div className="space-y-2.5">
+                      {items.map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => setSelectedStartup(item)}
+                          className="p-3 rounded-xl bg-[#0e1422] hover:bg-[#131b2e] border border-white/5 hover:border-emerald-500/40 cursor-pointer space-y-2 transition-all shadow-md"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-xs text-white truncate max-w-[120px]">
+                              {item.name}
+                            </span>
+                            <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                              {item.evaluation.matchScore}%
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-neutral-400 line-clamp-2">
+                            {item.oneLiner}
+                          </p>
+                          <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500 pt-1 border-t border-white/5">
+                            <span>+{item.githubStars7d} ⭐</span>
+                            <span>{item.countryCode}</span>
+                          </div>
                         </div>
-                        <p className="text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">
-                          {s.oneLiner}
-                        </p>
-                        <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500 pt-1 border-t border-white/5">
-                          <span className="truncate">{s.domain}</span>
-                          <span className="text-amber-300 whitespace-nowrap">+{s.githubStars7d} ⭐</span>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         )}
       </main>
 
-      {/* Modals & Drawers */}
-      <StartupDetailModal
+      {/* Harmonic Dossier Inspection Modal */}
+      <HarmonicDossierModal
         startup={selectedStartup}
-        isOpen={!!selectedStartup}
         onClose={() => setSelectedStartup(null)}
-        onOpenOutreach={(s) => {
+        onApproveOutreach={(s) => {
           setSelectedStartup(null);
           setOutreachStartup(s);
+          handleUpdateStage(s.id, "OUTREACH_PENDING");
         }}
-        onOpenMemo={(s) => {
+        onSyncCRM={handleSyncCRM}
+        onGenerateMemo={(s) => {
           setSelectedStartup(null);
           setMemoStartup(s);
         }}
-        onSyncCRM={handleSyncCRM}
-        onUpdateStage={handleUpdateStage}
+        onRejectFeedback={handleRejectFeedback}
       />
 
-      <AgentStreamDrawer
-        startup={streamStartup}
-        isOpen={!!streamStartup}
-        onClose={() => setStreamStartup(null)}
-      />
-
+      {/* Outreach Copywriter Modal (<150 words) */}
       <OutreachModal
         startup={outreachStartup}
-        isOpen={!!outreachStartup}
         onClose={() => setOutreachStartup(null)}
       />
 
+      {/* Executive IC Memo Modal */}
       <MemoModal
         startup={memoStartup}
-        isOpen={!!memoStartup}
         onClose={() => setMemoStartup(null)}
       />
 
+      {/* Command Palette (⌘K) */}
       <CommandPalette
         isOpen={isCommandOpen}
         onClose={() => setIsCommandOpen(false)}
         startups={startups}
-        onSelectStartup={setSelectedStartup}
+        onSelectStartup={(s) => setSelectedStartup(s)}
         onTriggerScan={handleTriggerScan}
-        onFilterHighFit={() => setFilterMode("high_fit")}
       />
+
+      {/* Floating System Toast */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-[#0e1422] border border-emerald-500/40 text-emerald-300 font-mono text-xs shadow-2xl glow-emerald animate-in slide-in-from-bottom duration-300">
+          <Sparkles className="w-4 h-4 text-emerald-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }
