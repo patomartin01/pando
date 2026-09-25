@@ -6,18 +6,19 @@ import { CommandMenu } from "@/components/navigation/command-menu";
 import { RadarFeed } from "@/components/deal-flow/radar-feed";
 import { KanbanBoard } from "@/components/deal-flow/kanban-board";
 import { DealTable } from "@/components/deal-flow/deal-table";
+import { NetworkGraph } from "@/components/deal-flow/network-graph";
 import { StartupDrawer } from "@/components/deal-flow/startup-drawer";
 import { MemoEditor } from "@/components/memos/memo-editor";
 import { mockStartups } from "@/lib/mock-data";
 import { StartupDeal, PipelineStage } from "@/types/startup";
-import { LayoutGrid, Table, Sparkles, Filter, Activity } from "lucide-react";
+import { Network, LayoutGrid, Table, Activity, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function HomePage() {
   const [startups, setStartups] = useState<StartupDeal[]>(mockStartups);
   const [selectedStartup, setSelectedStartup] = useState<StartupDeal | null>(null);
   const [memoStartup, setMemoStartup] = useState<StartupDeal | null>(null);
-  const [viewMode, setViewMode] = useState<"kanban" | "table">("kanban");
+  const [activeTab, setActiveTab] = useState<"graph" | "kanban" | "table">("graph");
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false);
   const [isScraping, setIsScraping] = useState(false);
 
@@ -75,7 +76,7 @@ export default function HomePage() {
 
       setStartups((prev) => [newDeal, ...prev]);
       setIsScraping(false);
-    }, 2000);
+    }, 1800);
   };
 
   const handleMoveStage = (startupId: string, newStage: PipelineStage) => {
@@ -96,12 +97,12 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-pando-dark text-white font-sans bg-grid-pando">
+    <div className="min-h-screen bg-[#07090E] text-white font-sans bg-grid-pando selection:bg-emerald-500 selection:text-black">
       {/* Navigation */}
       <Navbar onOpenCommandMenu={() => setIsCommandMenuOpen(true)} dealCount={startups.length} />
 
       {/* Main Container */}
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Live Signal Radar Banner */}
         <RadarFeed
           startups={startups}
@@ -110,56 +111,78 @@ export default function HomePage() {
           isScraping={isScraping}
         />
 
-        {/* Pipeline Controls & Switcher */}
+        {/* View Mode Switcher Header */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-pando-border">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-              <Activity className="h-5 w-5 text-emerald-400" />
-              <span>Pando Deal Flow Pipeline</span>
+              <Activity className="h-6 w-6 text-emerald-400" />
+              <span>Underground Root Network View</span>
             </h1>
             <p className="text-xs text-pando-muted font-mono">
-              Showing {startups.length} deals mapped across root network stages
+              Mapping {startups.length} active sprouts across global deal flow nodes
             </p>
           </div>
 
-          {/* View Mode Switcher */}
-          <div className="flex items-center gap-1 rounded-xl border border-pando-border bg-pando-card p-1">
+          {/* View Tabs */}
+          <div className="flex items-center gap-1 rounded-2xl border border-pando-border bg-pando-card p-1.5 shadow-lg">
             <button
-              onClick={() => setViewMode("kanban")}
+              onClick={() => setActiveTab("graph")}
               className={cn(
-                "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
-                viewMode === "kanban"
-                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                "flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all",
+                activeTab === "graph"
+                  ? "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/40 shadow-glow"
                   : "text-pando-muted hover:text-white"
               )}
             >
-              <LayoutGrid className="h-3.5 w-3.5" />
-              <span>Kanban</span>
+              <Network className="h-4 w-4" />
+              <span>Root Topology Canvas</span>
             </button>
 
             <button
-              onClick={() => setViewMode("table")}
+              onClick={() => setActiveTab("kanban")}
               className={cn(
-                "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
-                viewMode === "table"
-                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                "flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all",
+                activeTab === "kanban"
+                  ? "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/40 shadow-glow"
                   : "text-pando-muted hover:text-white"
               )}
             >
-              <Table className="h-3.5 w-3.5" />
-              <span>Dense Table</span>
+              <LayoutGrid className="h-4 w-4" />
+              <span>Kanban Board</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("table")}
+              className={cn(
+                "flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all",
+                activeTab === "table"
+                  ? "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/40 shadow-glow"
+                  : "text-pando-muted hover:text-white"
+              )}
+            >
+              <Table className="h-4 w-4" />
+              <span>Dense Data Sheet</span>
             </button>
           </div>
         </div>
 
-        {/* View Component */}
-        {viewMode === "kanban" ? (
+        {/* Tab View Render */}
+        {activeTab === "graph" && (
+          <NetworkGraph
+            startups={startups}
+            onSelectStartup={setSelectedStartup}
+          />
+        )}
+
+        {activeTab === "kanban" && (
           <KanbanBoard
             startups={startups}
             onSelectStartup={setSelectedStartup}
             onMoveStage={handleMoveStage}
           />
-        ) : (
+        )}
+
+        {activeTab === "table" && (
           <DealTable
             startups={startups}
             onSelectStartup={setSelectedStartup}
