@@ -392,12 +392,14 @@ export default function HarmonicDashboard() {
 
       {/* Outreach Copywriter Modal (<150 words) */}
       <OutreachModal
+        isOpen={!!outreachStartup}
         startup={outreachStartup}
         onClose={() => setOutreachStartup(null)}
       />
 
       {/* Executive IC Memo Modal */}
       <MemoModal
+        isOpen={!!memoStartup}
         startup={memoStartup}
         onClose={() => setMemoStartup(null)}
       />
@@ -409,6 +411,7 @@ export default function HarmonicDashboard() {
         startups={startups}
         onSelectStartup={(s) => setSelectedStartup(s)}
         onTriggerScan={handleTriggerScan}
+        onFilterHighFit={() => setMinScore(85)}
       />
 
       {/* Floating System Toast */}

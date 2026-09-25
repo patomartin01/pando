@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { FeedbackLog, DealStage } from "@/types/domain";
 
 // In-memory feedback store for session (backed by Postgres table feedback_logs in prod)
-export const globalFeedbackStore: FeedbackLog[] = [];
+const globalFeedbackStore: FeedbackLog[] = [];
 
 export async function POST(request: NextRequest) {
   try {

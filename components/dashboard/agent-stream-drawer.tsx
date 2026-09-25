@@ -81,15 +81,15 @@ export function AgentStreamDrawer({ isOpen, onClose, startup }: AgentStreamDrawe
                     <span className="px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20 font-bold">
                       {log.status}
                     </span>
-                    {log.tool_used && (
+                    {log.toolUsed && (
                       <span className="text-neutral-400">
-                        tool: <code className="text-emerald-400">{log.tool_used}</code>
+                        tool: <code className="text-emerald-400">{log.toolUsed}</code>
                       </span>
                     )}
                   </div>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    {log.execution_time_ms}ms
+                    {log.executionTimeMs}ms
                   </span>
                 </div>
                 <p className="text-neutral-300 leading-relaxed text-[11px]">{log.message}</p>

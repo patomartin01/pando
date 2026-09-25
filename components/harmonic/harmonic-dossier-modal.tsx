@@ -64,16 +64,16 @@ export function HarmonicDossierModal({
   const chartData = startup.timeSeries
     ? selectedMetric === "stars"
       ? startup.timeSeries.githubStars.map((p) => ({
-          date: p.recordedAt.slice(5),
+          date: p.day,
           value: p.value,
         }))
       : selectedMetric === "headcount"
       ? startup.timeSeries.linkedinHeadcount.map((p) => ({
-          date: p.recordedAt.slice(5),
+          date: p.day,
           value: p.value,
         }))
       : startup.timeSeries.webTraffic.map((p) => ({
-          date: p.recordedAt.slice(5),
+          date: p.day,
           value: p.value,
         }))
     : [];
@@ -215,7 +215,7 @@ export function HarmonicDossierModal({
                   Puntos Clave de Inversión (Investment Committee):
                 </span>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {startup.evaluation.investmentHighlights.map((hl, i) => (
+                  {startup.evaluation.summaryBullets.map((hl, i) => (
                     <div
                       key={i}
                       className="p-3.5 rounded-xl bg-[#0e1422] border border-white/5 text-xs text-neutral-300 space-y-1"
@@ -322,14 +322,20 @@ export function HarmonicDossierModal({
                         <span className="text-neutral-500">Ex-Empresas: </span>
                         <span className="text-neutral-200 font-semibold">{founder.exCompanies.join(", ")}</span>
                       </div>
-                      <div>
-                        <span className="text-neutral-500">Educación: </span>
-                        <span className="text-neutral-200">{founder.education}</span>
-                      </div>
-                      {founder.priorExits && founder.priorExits.length > 0 && (
+                      {founder.academicBackground && founder.academicBackground.length > 0 && (
+                        <div>
+                          <span className="text-neutral-500">Educación: </span>
+                          <span className="text-neutral-200">
+                            {founder.academicBackground.map((a) => `${a.degree} (${a.institution})`).join(", ")}
+                          </span>
+                        </div>
+                      )}
+                      {founder.previousExits && founder.previousExits.length > 0 && (
                         <div>
                           <span className="text-emerald-400 font-bold">Exits Anteriores: </span>
-                          <span className="text-neutral-200">{founder.priorExits.join(", ")}</span>
+                          <span className="text-neutral-200">
+                            {founder.previousExits.map((e) => `${e.company} → ${e.acquiredBy} (${e.year})`).join(", ")}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -341,7 +347,7 @@ export function HarmonicDossierModal({
                         </span>
                         {founder.teamOverlapMatrix.map((ov, idx) => (
                           <div key={idx} className="text-[11px] text-neutral-300 mt-0.5">
-                            • {ov.sharedCompany} ({ov.overlapYears} años de trabajo juntos)
+                            • {ov.previousCompany} con {ov.coFounderName} ({ov.yearsOverlapped} años)
                           </div>
                         ))}
                       </div>

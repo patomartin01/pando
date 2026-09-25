@@ -17,7 +17,7 @@ export function generateExecutiveMemo(startup: StartupEntity): InvestmentMemo {
 ---
 
 ## 1. Executive Summary & Thesis Fit
-* **Problem:** ${startup.description || startup.fullDescription || startup.oneLiner}
+* **Problem:** ${startup.fullDescription || startup.oneLiner}
 * **Solution:** ${startup.name} provides a purpose-built architecture solving performance and scalability bottlenecks with sub-millisecond overhead.
 * **Thesis Fit:** ${startup.evaluation.summaryBullets[0] || "Strong alignment with Pre-Seed/Seed frontier infrastructure criteria."}
 * **Key Strengths:**
