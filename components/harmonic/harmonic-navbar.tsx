@@ -14,10 +14,10 @@ import {
   RefreshCw,
   Target,
   Network,
-  Cpu,
+  Columns3,
 } from "lucide-react";
 
-export type HarmonicNavView = "scout" | "radar" | "network" | "signals" | "thesis" | "kanban";
+export type HarmonicNavView = "scout" | "radar" | "signals" | "thesis" | "kanban";
 
 interface HarmonicNavbarProps {
   activeView: HarmonicNavView;
@@ -39,87 +39,77 @@ export function HarmonicNavbar({
   stealthCount,
 }: HarmonicNavbarProps) {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#070a12]/95 backdrop-blur-2xl">
-      {/* Top Utility Bar */}
+    <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#090a0f]/90 backdrop-blur-xl">
       <div className="max-w-[1680px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Left: Brandmark & Tagline */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 text-black font-black font-mono shadow-[0_0_25px_rgba(16,185,129,0.5)]">
-              <span className="text-lg">P</span>
-              <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-300 animate-ping" />
+            {/* Harmonic Style Diamond / Hex Glyphs */}
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#5f42ff] to-[#2491ff] flex items-center justify-center text-white font-black text-sm shadow-md shadow-[#5f42ff]/20">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                <polyline points="2 17 12 22 22 17" />
+                <polyline points="2 12 12 17 22 12" />
+              </svg>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-base font-extrabold tracking-tight text-white font-mono">
-                  PANDO
+                <span className="text-base font-bold tracking-tight text-white">
+                  Harmonic
                 </span>
-                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold tracking-wider">
-                  Harmonic Engine
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#5f42ff]/15 text-[#c4b5fd] border border-[#5f42ff]/30 font-medium">
+                  Pando VC
                 </span>
               </div>
-              <p className="text-[10px] text-neutral-400 font-mono tracking-tight">
-                Autonomous Frontier Venture Intelligence
+              <p className="text-[11px] text-neutral-400 font-medium">
+                Startup Database & Intelligence
               </p>
             </div>
           </div>
 
-          {/* Navigation Tabs (Harmonic Extended Suite) */}
-          <nav className="hidden xl:flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-xs font-mono">
+          {/* Navigation Tabs (Harmonic Standard) */}
+          <nav className="hidden lg:flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.08] rounded-xl text-xs font-medium">
             <button
               onClick={() => onSelectView("scout")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 activeView === "scout"
-                  ? "bg-white/10 text-white font-bold shadow-sm border border-white/15"
+                  ? "bg-white/10 text-white font-semibold shadow-sm border border-white/10"
                   : "text-neutral-400 hover:text-white"
               }`}
             >
-              <Compass className="w-3.5 h-3.5 text-emerald-400" />
+              <Compass className="w-3.5 h-3.5 text-[#5f42ff]" />
               <span>Scout</span>
             </button>
 
             <button
               onClick={() => onSelectView("radar")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 activeView === "radar"
-                  ? "bg-emerald-500/20 text-emerald-300 font-bold shadow-sm border border-emerald-500/40"
+                  ? "bg-[#5f42ff]/20 text-[#c4b5fd] font-semibold shadow-sm border border-[#5f42ff]/30"
                   : "text-neutral-400 hover:text-white"
               }`}
             >
-              <Target className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Radar 360°</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            </button>
-
-            <button
-              onClick={() => onSelectView("network")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
-                activeView === "network"
-                  ? "bg-violet-500/20 text-violet-300 font-bold shadow-sm border border-violet-500/40"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              <Network className="w-3.5 h-3.5 text-violet-400" />
-              <span>Talent DNA</span>
+              <Target className="w-3.5 h-3.5 text-[#5f42ff]" />
+              <span>Tactical Radar</span>
             </button>
 
             <button
               onClick={() => onSelectView("signals")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 activeView === "signals"
-                  ? "bg-cyan-500/20 text-cyan-300 font-bold shadow-sm border border-cyan-500/40"
+                  ? "bg-white/10 text-white font-semibold shadow-sm border border-white/10"
                   : "text-neutral-400 hover:text-white"
               }`}
             >
-              <Radio className="w-3.5 h-3.5 text-cyan-400" />
+              <Radio className="w-3.5 h-3.5 text-emerald-400" />
               <span>Live Signals</span>
             </button>
 
             <button
               onClick={() => onSelectView("thesis")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 activeView === "thesis"
-                  ? "bg-white/10 text-white font-bold shadow-sm border border-white/15"
+                  ? "bg-white/10 text-white font-semibold shadow-sm border border-white/10"
                   : "text-neutral-400 hover:text-white"
               }`}
             >
@@ -129,58 +119,51 @@ export function HarmonicNavbar({
 
             <button
               onClick={() => onSelectView("kanban")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 activeView === "kanban"
-                  ? "bg-white/10 text-white font-bold shadow-sm border border-white/15"
+                  ? "bg-white/10 text-white font-semibold shadow-sm border border-white/10"
                   : "text-neutral-400 hover:text-white"
               }`}
             >
-              <BookmarkCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <Columns3 className="w-3.5 h-3.5 text-blue-400" />
               <span>Pipeline</span>
             </button>
           </nav>
         </div>
 
-        {/* Center: Harmonic Global Search Bar */}
-        <div className="flex-1 max-w-md hidden lg:block">
+        {/* Right: Quick Command, Attio Status & Profile */}
+        <div className="flex items-center gap-3">
+          {/* Quick Command Trigger (⌘K) */}
           <button
             onClick={onOpenCommand}
-            className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-mono text-neutral-400 transition-all cursor-pointer"
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.09] text-xs text-neutral-400 hover:text-white transition-all cursor-pointer"
           >
-            <div className="flex items-center gap-2.5">
-              <Search className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Buscar empresas, fundadores, repos...</span>
-            </div>
-            <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-[10px] text-neutral-300 font-mono border border-white/10">
+            <Search className="w-3.5 h-3.5 text-neutral-400" />
+            <span>Search 35K+ companies...</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-black/40 text-[10px] font-mono text-neutral-400 border border-white/10">
               ⌘K
             </kbd>
           </button>
-        </div>
 
-        {/* Right Actions: Scraper trigger, CRM state & User partner */}
-        <div className="flex items-center gap-3">
-          {/* Ingestion Worker Trigger */}
+          {/* Attio Connected Pill */}
+          <div className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Attio CRM Synced</span>
+          </div>
+
+          {/* Trigger Scan Button */}
           <button
             onClick={onTriggerScan}
             disabled={isScanning}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-mono text-neutral-300 transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#5f42ff] hover:bg-[#5235f5] text-white text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-60"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-emerald-400 ${isScanning ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">
-              {isScanning ? "Ingiriendo..." : "Escanear Fuentes"}
-            </span>
+            <RefreshCw className={`w-3.5 h-3.5 ${isScanning ? "animate-spin" : ""}`} />
+            <span className="hidden sm:inline">{isScanning ? "Scanning..." : "Scan Market"}</span>
           </button>
 
-          {/* Attio CRM Status Pill */}
-          <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px] font-mono">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <Database className="w-3 h-3 text-emerald-400" />
-            <span>Attio CRM</span>
-          </div>
-
-          {/* VC Partner Avatar */}
-          <div className="flex items-center gap-2 pl-2 border-l border-white/10">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center border border-white/15 shadow-sm">
+          {/* Partner User Avatar */}
+          <div className="flex items-center gap-2 pl-2 border-l border-white/[0.08]">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-900 border border-white/15 flex items-center justify-center text-xs font-bold text-white shadow-sm">
               PM
             </div>
           </div>

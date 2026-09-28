@@ -5,17 +5,18 @@ import { StartupEntity } from "@/types/domain";
 import {
   ExternalLink,
   Github,
-  Star,
   Users,
   TrendingUp,
   Award,
   Network,
-  Share2,
   Mail,
   FileText,
+  ShieldCheck,
   ShieldAlert,
-  CheckCircle,
-  Eye,
+  Database,
+  ArrowRight,
+  ChevronRight,
+  Sparkles,
 } from "lucide-react";
 
 interface HarmonicCompanyTableProps {
@@ -35,263 +36,230 @@ export function HarmonicCompanyTable({
 }: HarmonicCompanyTableProps) {
   if (startups.length === 0) {
     return (
-      <div className="p-12 text-center rounded-2xl bg-[#0e1422]/60 border border-white/5 space-y-3 font-mono">
-        <p className="text-neutral-400 text-sm">No se encontraron startups que coincidan con estos filtros.</p>
-        <p className="text-neutral-500 text-xs">Intenta ajustar los criterios de búsqueda o relajar el umbral de Match Score.</p>
+      <div className="p-16 text-center rounded-2xl bg-[#10121a] border border-white/[0.08] space-y-3">
+        <Sparkles className="w-8 h-8 text-[#5f42ff] mx-auto opacity-60" />
+        <h3 className="text-base font-bold text-white">No companies match your filters</h3>
+        <p className="text-xs text-neutral-400 max-w-sm mx-auto">
+          Try loosening your thesis score threshold or clearing stage and vertical constraints.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="w-full rounded-2xl bg-[#0b0f17]/90 border border-white/[0.08] overflow-hidden shadow-2xl backdrop-blur-md">
+    <div className="w-full rounded-2xl bg-[#10121a] border border-white/[0.08] overflow-hidden shadow-xl">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-white/[0.08] bg-[#0e1422]/90 text-[11px] font-mono text-neutral-400 uppercase tracking-wider">
-              <th className="py-3.5 px-4 font-bold">Compañía & Dominio</th>
-              <th className="py-3.5 px-4 font-bold hidden md:table-cell">Descripción</th>
-              <th className="py-3.5 px-4 font-bold">Equipo Fundador</th>
-              <th className="py-3.5 px-4 font-bold">Señales de Crecimiento (7d)</th>
-              <th className="py-3.5 px-4 font-bold text-center">Etapa</th>
-              <th className="py-3.5 px-4 font-bold text-center">Thesis Fit</th>
-              <th className="py-3.5 px-4 font-bold text-right">Acciones</th>
+            <tr className="border-b border-white/[0.08] bg-[#141722] text-[11px] font-semibold text-neutral-400 tracking-wider">
+              <th className="py-3.5 px-4">Company</th>
+              <th className="py-3.5 px-4 hidden lg:table-cell">Description & Vertical</th>
+              <th className="py-3.5 px-4">Founders & Pedigree</th>
+              <th className="py-3.5 px-4">Traction & Velocity</th>
+              <th className="py-3.5 px-4 text-center">Stage</th>
+              <th className="py-3.5 px-4 text-center">Thesis Fit</th>
+              <th className="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.05]">
+          <tbody className="divide-y divide-white/[0.06]">
             {startups.map((startup) => {
               const score = startup.evaluation.matchScore;
               const isHigh = score >= 85;
               const isDisqualified = !startup.evaluation.passedHardFilters;
 
+              // Generate SVG Sparkline Points
+              const pts = startup.timeSeries?.githubStars || [];
+              const minVal = Math.min(...pts.map((p) => p.value), 0);
+              const maxVal = Math.max(...pts.map((p) => p.value), 100);
+              const width = 80;
+              const height = 24;
+              const sparklinePoints = pts
+                .map((pt, idx) => {
+                  const x = (idx / (pts.length - 1 || 1)) * width;
+                  const y = height - ((pt.value - minVal) / (maxVal - minVal || 1)) * (height - 4) - 2;
+                  return `${x},${y}`;
+                })
+                .join(" ");
+
               return (
                 <tr
                   key={startup.id}
                   onClick={() => onSelectStartup(startup)}
-                  className="hover:bg-white/[0.03] transition-colors cursor-pointer group text-xs font-mono"
+                  className="harmonic-row cursor-pointer group text-xs transition-colors"
                 >
                   {/* Company Column */}
-                  <td className="py-4 px-4 align-top">
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500/10 to-violet-500/10 border border-white/10 flex items-center justify-center font-bold text-white shrink-0 group-hover:border-emerald-500/40 transition-colors shadow-sm">
+                  <td className="py-4 px-4 align-middle">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#5f42ff]/20 to-[#2491ff]/20 border border-white/10 flex items-center justify-center font-bold text-white text-sm shrink-0 group-hover:border-[#5f42ff]/50 transition-colors shadow-sm">
                         {startup.name.slice(0, 2).toUpperCase()}
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm text-white group-hover:text-emerald-400 transition-colors">
+                          <span className="font-bold text-sm text-white group-hover:text-[#a594fd] transition-colors">
                             {startup.name}
                           </span>
                           {startup.stealthStatus && (
-                            <span className="px-1.5 py-0.2 rounded text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-bold">
+                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#2491ff]/15 text-[#60a5fa] border border-[#2491ff]/30 font-semibold">
                               STEALTH
                             </span>
                           )}
-                          <span className="text-[10px] text-neutral-400 font-mono">
-                            {startup.countryCode}
-                          </span>
                         </div>
-                        <div className="flex items-center gap-2 text-neutral-400 text-[11px]">
-                          <span>{startup.domain}</span>
-                          {startup.githubOrgUrl && (
-                            <a
-                              href={startup.githubOrgUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-neutral-500 hover:text-white transition-colors"
-                            >
-                              <Github className="w-3 h-3" />
-                            </a>
-                          )}
+                        <div className="flex items-center gap-2 text-neutral-400 text-[11px] font-mono">
+                          <span className="hover:text-white transition-colors">{startup.domain}</span>
+                          <span>•</span>
+                          <span>{startup.countryCode}</span>
                         </div>
                       </div>
                     </div>
                   </td>
 
-                  {/* Description Column */}
-                  <td className="py-4 px-4 align-top hidden md:table-cell max-w-xs">
-                    <p className="text-neutral-300 text-xs line-clamp-2 leading-relaxed">
-                      {startup.oneLiner}
-                    </p>
-                    <span className="inline-block mt-1 text-[10px] text-neutral-400 px-2 py-0.5 rounded bg-white/[0.03] border border-white/5">
-                      {startup.primaryVertical}
-                    </span>
+                  {/* Description & Vertical */}
+                  <td className="py-4 px-4 align-middle hidden lg:table-cell max-w-xs">
+                    <div className="space-y-1.5">
+                      <p className="text-neutral-300 text-xs line-clamp-1 leading-snug">
+                        {startup.oneLiner}
+                      </p>
+                      <span className="inline-block px-2 py-0.5 rounded-md bg-white/[0.04] text-neutral-400 border border-white/[0.08] text-[10px] font-medium">
+                        {startup.primaryVertical}
+                      </span>
+                    </div>
                   </td>
 
-                  {/* Founders & Pedigree Column */}
-                  <td className="py-4 px-4 align-top">
-                    <div className="space-y-1.5">
+                  {/* Founders & Pedigree */}
+                  <td className="py-4 px-4 align-middle">
+                    <div className="space-y-1">
                       <div className="flex items-center gap-1.5">
-                        {startup.founders.map((f, i) => (
-                          <div
-                            key={f.id}
-                            title={`${f.fullName} (${f.role}) - ${f.exCompanies.join(", ")}`}
-                            className="w-6 h-6 rounded-full bg-violet-600/30 border border-violet-400/30 flex items-center justify-center text-[10px] font-bold text-violet-200"
-                          >
-                            {f.fullName.charAt(0)}
-                          </div>
-                        ))}
-                        <span className="text-neutral-300 text-xs font-semibold truncate max-w-[120px]">
+                        <div className="flex -space-x-1.5 overflow-hidden">
+                          {startup.founders.map((f, i) => (
+                            <div
+                              key={f.id}
+                              title={`${f.fullName} (${f.role})`}
+                              className="w-5 h-5 rounded-full bg-[#5f42ff]/30 border border-white/20 text-[9px] font-bold text-white flex items-center justify-center"
+                            >
+                              {f.fullName.slice(0, 1)}
+                            </div>
+                          ))}
+                        </div>
+                        <span className="font-semibold text-neutral-200 text-xs">
                           {startup.founders[0]?.fullName}
                         </span>
                       </div>
 
-                      {/* Ex-companies pills */}
-                      <div className="flex flex-wrap items-center gap-1">
-                        {startup.founderPedigree.slice(0, 2).map((ped, idx) => (
+                      {/* Ex-companies chips */}
+                      <div className="flex items-center gap-1 flex-wrap">
+                        {startup.founders[0]?.exCompanies.slice(0, 2).map((comp, idx) => (
                           <span
                             key={idx}
-                            className="text-[10px] px-1.5 py-0.2 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20"
+                            className="px-1.5 py-0.2 rounded bg-[#5f42ff]/10 text-[#c4b5fd] border border-[#5f42ff]/20 text-[10px] font-medium"
                           >
-                            {ped}
+                            ex-{comp}
                           </span>
                         ))}
-
-                        {/* Team Overlap Tag */}
-                        {startup.founders.some(
-                          (f) => f.teamOverlapMatrix && f.teamOverlapMatrix.length > 0
-                        ) && (
-                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 flex items-center gap-1 font-bold">
+                        {startup.founders[0]?.teamOverlapMatrix && startup.founders[0].teamOverlapMatrix.length > 0 && (
+                          <span
+                            title="Co-founders worked together at a previous company"
+                            className="px-1.5 py-0.2 rounded bg-purple-500/15 text-purple-300 border border-purple-500/25 text-[10px] flex items-center gap-1 font-medium"
+                          >
                             <Network className="w-2.5 h-2.5" />
-                            <span>Co-Workers</span>
+                            <span>Overlap</span>
                           </span>
                         )}
                       </div>
                     </div>
                   </td>
 
-                  {/* Growth Signals Column */}
-                  <td className="py-4 px-4 align-top">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold text-xs shadow-sm">
-                          <TrendingUp className="w-3 h-3 text-emerald-400" />
+                  {/* Traction & Velocity Sparkline */}
+                  <td className="py-4 px-4 align-middle">
+                    <div className="flex items-center gap-3">
+                      {pts.length > 0 && (
+                        <div className="w-20 h-6 shrink-0">
+                          <svg className="w-full h-full overflow-visible" viewBox={`0 0 ${width} ${height}`}>
+                            <defs>
+                              <linearGradient id={`spark-${startup.id}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
+                                <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                              </linearGradient>
+                            </defs>
+                            <polyline
+                              fill="none"
+                              stroke="#10b981"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              points={sparklinePoints}
+                            />
+                          </svg>
+                        </div>
+                      )}
+                      <div>
+                        <div className="flex items-center gap-1 font-bold text-emerald-400 font-mono text-xs">
+                          <TrendingUp className="w-3 h-3" />
                           <span>+{startup.githubStars7d} ⭐</span>
-                        </span>
-                        <span className="text-[11px] text-neutral-400">
+                        </div>
+                        <span className="text-[10px] text-neutral-400 font-mono">
                           {startup.commitVelocity}
                         </span>
                       </div>
-
-                      {/* Mini SVG Sparkline */}
-                      {startup.timeSeries?.githubStars && (
-                        <div className="flex items-center gap-2 pt-0.5">
-                          <svg className="w-20 h-5 overflow-visible" viewBox="0 0 70 20">
-                            {(() => {
-                              const pts = startup.timeSeries.githubStars;
-                              const minV = Math.min(...pts.map((p) => p.value));
-                              const maxV = Math.max(...pts.map((p) => p.value));
-                              const range = maxV - minV || 1;
-                              const coords = pts
-                                .map(
-                                  (p, idx) =>
-                                    `${(idx / (pts.length - 1 || 1)) * 70},${
-                                      18 - ((p.value - minV) / range) * 16
-                                    }`
-                                )
-                                .join(" ");
-                              return (
-                                <>
-                                  <polyline
-                                    points={coords}
-                                    fill="none"
-                                    stroke="#10b981"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                  <circle
-                                    cx="70"
-                                    cy={
-                                      18 -
-                                      ((pts[pts.length - 1].value - minV) / range) * 16
-                                    }
-                                    r="2.5"
-                                    fill="#34d399"
-                                    className="animate-ping"
-                                  />
-                                  <circle
-                                    cx="70"
-                                    cy={
-                                      18 -
-                                      ((pts[pts.length - 1].value - minV) / range) * 16
-                                    }
-                                    r="2"
-                                    fill="#34d399"
-                                  />
-                                </>
-                              );
-                            })()}
-                          </svg>
-                          <span className="text-[9px] font-mono text-emerald-400 font-bold">
-                            30D VELOCITY
-                          </span>
-                        </div>
-                      )}
                     </div>
                   </td>
 
-                  {/* Stage Column */}
-                  <td className="py-4 px-4 align-top text-center">
-                    <span className="inline-block px-2.5 py-1 rounded-lg bg-white/[0.04] text-neutral-300 border border-white/10 text-[11px] font-bold">
+                  {/* Stage */}
+                  <td className="py-4 px-4 align-middle text-center">
+                    <span className="px-2 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] text-neutral-300 text-[11px] font-mono">
                       {startup.estimatedStage}
                     </span>
                   </td>
 
-                  {/* Thesis Fit Column */}
-                  <td className="py-4 px-4 align-top text-center">
-                    {isDisqualified ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold text-xs">
-                        <ShieldAlert className="w-3.5 h-3.5" />
-                        <span>0% Excluido</span>
+                  {/* Thesis Fit */}
+                  <td className="py-4 px-4 align-middle text-center">
+                    <div className="inline-flex flex-col items-center">
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full font-bold font-mono text-xs ${
+                          isHigh
+                            ? "bg-[#5f42ff]/15 text-[#a594fd] border border-[#5f42ff]/30"
+                            : isDisqualified
+                            ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                            : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                        }`}
+                      >
+                        {score}%
                       </span>
-                    ) : (
-                      <div className="inline-flex flex-col items-center">
-                        <span
-                          className={`px-3 py-1 rounded-xl font-bold text-xs border ${
-                            isHigh
-                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 glow-emerald"
-                              : "bg-amber-500/15 text-amber-300 border-amber-500/30 glow-amber"
+                      <div className="w-12 h-1 bg-white/10 rounded-full mt-1.5 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${
+                            isHigh ? "bg-[#5f42ff]" : isDisqualified ? "bg-rose-500" : "bg-amber-400"
                           }`}
-                        >
-                          {score}% FIT
-                        </span>
+                          style={{ width: `${score}%` }}
+                        />
                       </div>
-                    )}
+                    </div>
                   </td>
 
                   {/* Actions Column */}
-                  <td className="py-4 px-4 align-top text-right" onClick={(e) => e.stopPropagation()}>
+                  <td className="py-4 px-4 align-middle text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-end gap-1.5">
                       <button
-                        onClick={() => onSelectStartup(startup)}
-                        title="Ver Dossier Completo"
-                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/5 transition-colors"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        onClick={() => onSyncCRM(startup)}
-                        title="Sincronizar a Attio CRM"
-                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-emerald-400 border border-white/5 transition-colors"
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
                         onClick={() => onOpenOutreach(startup)}
-                        title="Generar Outreach Email"
-                        className="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 transition-colors"
+                        title="Draft Outreach Email"
+                        className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-[#5f42ff] text-neutral-400 hover:text-white border border-white/[0.08] transition-colors cursor-pointer"
                       >
                         <Mail className="w-3.5 h-3.5" />
                       </button>
 
                       <button
-                        onClick={() => onOpenMemo(startup)}
-                        title="Investment Memo IC"
-                        className="p-1.5 rounded-lg bg-violet-500/10 hover:bg-violet-500/20 text-violet-300 border border-violet-500/20 transition-colors"
+                        onClick={() => onSyncCRM(startup)}
+                        title="Sync to Attio CRM"
+                        className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-emerald-600 text-neutral-400 hover:text-white border border-white/[0.08] transition-colors cursor-pointer"
                       >
-                        <FileText className="w-3.5 h-3.5" />
+                        <Database className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        onClick={() => onSelectStartup(startup)}
+                        title="Open Dossier"
+                        className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.12] text-neutral-400 hover:text-white border border-white/[0.08] transition-colors cursor-pointer"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>

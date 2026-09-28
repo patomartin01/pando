@@ -8,12 +8,12 @@ import { sendSlackDealAlert } from "@/lib/engine/slack-webhook";
 
 // Harmonic UI Components
 import { HarmonicNavbar, HarmonicNavView } from "@/components/harmonic/harmonic-navbar";
-import { HarmonicTickerMarquee } from "@/components/harmonic/harmonic-ticker-marquee";
+import { HarmonicScoutPrompt } from "@/components/harmonic/harmonic-scout-prompt";
 import { HarmonicFilterBar } from "@/components/harmonic/harmonic-filter-bar";
 import { HarmonicCompanyTable } from "@/components/harmonic/harmonic-company-table";
 import { HarmonicCompanyCards } from "@/components/harmonic/harmonic-company-cards";
 import { HarmonicSignalsFeed } from "@/components/harmonic/harmonic-signals-feed";
-import { HarmonicDossierModal } from "@/components/harmonic/harmonic-dossier-modal";
+import { HarmonicDossierDrawer } from "@/components/harmonic/harmonic-dossier-drawer";
 import { HarmonicRadarVisualizer } from "@/components/harmonic/harmonic-radar-visualizer";
 import { HarmonicNetworkGraph } from "@/components/harmonic/harmonic-network-graph";
 
@@ -39,10 +39,10 @@ import {
 
 const PIPELINE_COLUMNS: { id: DealStage; label: string; color: string }[] = [
   { id: "NEW_SIGNAL", label: "NUEVAS SEÑALES", color: "text-neutral-400" },
-  { id: "AI_QUALIFIED", label: "CALIFICADO POR IA", color: "text-cyan-400" },
+  { id: "AI_QUALIFIED", label: "CALIFICADO POR IA", color: "text-blue-400" },
   { id: "SAVED_FOR_REVIEW", label: "EN REVISIÓN", color: "text-amber-400" },
   { id: "OUTREACH_PENDING", label: "OUTREACH PENDIENTE", color: "text-emerald-400" },
-  { id: "CONTACTED", label: "CONTACTADO", color: "text-violet-400" },
+  { id: "CONTACTED", label: "CONTACTADO", color: "text-purple-400" },
   { id: "PASSED", label: "DESCARTADO", color: "text-rose-400" },
   { id: "INVESTED", label: "INVERTIDO", color: "text-emerald-300" },
 ];
@@ -92,7 +92,7 @@ export default function HarmonicDashboard() {
       const target = startups.find((s) => s.id === startupId);
       if (target && target.evaluation.matchScore >= 85) {
         sendSlackDealAlert(target);
-        showToast(`🚨 Alerta visual enviada a Slack (#deals-high-conviction) para ${target.name}`);
+        showToast(`🚨 Alerta enviada a Slack (#deals-high-conviction) para ${target.name}`);
       }
     }
   };
@@ -105,7 +105,7 @@ export default function HarmonicDashboard() {
     setTimeout(() => {
       setIsScanning(false);
       showToast("Escaneo completado: 14 nuevos eventos de tracción y estrellas indexados.");
-    }, 2200);
+    }, 2000);
   };
 
   // Attio CRM Sync
@@ -118,21 +118,47 @@ export default function HarmonicDashboard() {
       });
       const data = await res.json();
       if (data.success) {
-        showToast(`✅ ${startup.name} sincronizado exitosamente con Attio CRM (ID: ${data.attioRecordId})`);
+        showToast(`✅ ${startup.name} sincronizado exitosamente con Attio CRM Workspace`);
+      } else {
+        showToast(`ℹ️ ${startup.name} guardado en registro local de Attio`);
       }
     } catch {
-      showToast(`✅ ${startup.name} exportado a Attio CRM.`);
+      showToast(`ℹ️ ${startup.name} sincronizado con CRM`);
     }
   };
 
-  // Rejection feedback
+  // RLHF Feedback Rejection
   const handleRejectFeedback = async (startup: StartupEntity, reason: string) => {
-    handleUpdateStage(startup.id, "PASSED", reason);
-    setSelectedStartup(null);
-    showToast(`Descartado ${startup.name} con motivo: "${reason}". RLHF registrado.`);
+    try {
+      await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          startupId: startup.id,
+          founderIds: startup.founders.map((f) => f.id),
+          vertical: startup.primaryVertical,
+          reason,
+          penaltyScore: 25,
+        }),
+      });
+      handleUpdateStage(startup.id, "PASSED", reason);
+      setSelectedStartup(null);
+      showToast(`📉 Penalización aplicada a ${startup.name} (-25 pts por RLHF Feedback)`);
+    } catch {
+      handleUpdateStage(startup.id, "PASSED", reason);
+      setSelectedStartup(null);
+    }
   };
 
-  // Reset filters
+  // Preset Selection from Scout Prompt
+  const handleSelectPreset = (preset: { query?: string; vertical?: string; stage?: string; minScore?: number }) => {
+    if (preset.query !== undefined) setSearchQuery(preset.query);
+    if (preset.vertical !== undefined) setSelectedVertical(preset.vertical);
+    if (preset.stage !== undefined) setSelectedStage(preset.stage);
+    if (preset.minScore !== undefined) setMinScore(preset.minScore);
+  };
+
+  // Reset Filters
   const handleResetFilters = () => {
     setSearchQuery("");
     setSelectedVertical("all");
@@ -141,42 +167,42 @@ export default function HarmonicDashboard() {
     setMinScore(0);
   };
 
-  // Filtered dataset
+  // Multi-Filter Pipeline
   const filteredStartups = useMemo(() => {
     return startups.filter((startup) => {
-      if (searchQuery) {
+      // Natural language / text search
+      if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesName = startup.name.toLowerCase().includes(q);
-        const matchesDomain = startup.domain.toLowerCase().includes(q);
-        const matchesFounder = startup.founders.some((f) =>
-          f.fullName.toLowerCase().includes(q)
+        const matchesDesc = (startup.oneLiner + " " + startup.fullDescription).toLowerCase().includes(q);
+        const matchesFounders = startup.founders.some(
+          (f) =>
+            f.fullName.toLowerCase().includes(q) ||
+            f.exCompanies.some((c) => c.toLowerCase().includes(q))
         );
-        const matchesDesc = startup.oneLiner.toLowerCase().includes(q);
-        if (!matchesName && !matchesDomain && !matchesFounder && !matchesDesc) {
-          return false;
-        }
+        const matchesVertical = startup.primaryVertical.toLowerCase().includes(q);
+        if (!matchesName && !matchesDesc && !matchesFounders && !matchesVertical) return false;
       }
 
+      // Vertical filter
       if (selectedVertical !== "all" && startup.primaryVertical !== selectedVertical) {
         return false;
       }
 
+      // Stage filter
       if (selectedStage === "stealth" && !startup.stealthStatus) {
         return false;
-      }
-      if (
-        selectedStage !== "all" &&
-        selectedStage !== "stealth" &&
-        startup.estimatedStage !== selectedStage
-      ) {
+      } else if (selectedStage !== "all" && selectedStage !== "stealth" && startup.estimatedStage !== selectedStage) {
         return false;
       }
 
+      // Signal Type filter
       if (selectedSignalType !== "all") {
-        const hasSig = startup.signals.some((s) => s.signalType === selectedSignalType);
-        if (!hasSig) return false;
+        const hasSignal = startup.signals.some((s) => s.signalType === selectedSignalType);
+        if (!hasSignal) return false;
       }
 
+      // Minimum Score
       if (minScore > 0 && startup.evaluation.matchScore < minScore) {
         return false;
       }
@@ -185,16 +211,12 @@ export default function HarmonicDashboard() {
     });
   }, [startups, searchQuery, selectedVertical, selectedStage, selectedSignalType, minScore]);
 
-  const stealthCount = startups.filter((s) => s.stealthStatus).length;
-
   return (
-    <div className="min-h-screen bg-[#04060b] text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black relative overflow-x-hidden">
-      {/* Dynamic Cyber Grid & Aurora Backdrops */}
-      <div className="fixed inset-0 cyber-grid pointer-events-none opacity-40 z-0" />
-      <div className="aurora-mesh top-10 left-1/4 w-[550px] h-[550px] bg-emerald-600/10" />
-      <div className="aurora-mesh bottom-10 right-1/4 w-[650px] h-[650px] bg-indigo-600/10" />
+    <div className="min-h-screen bg-[#090a0f] text-neutral-100 flex flex-col font-sans relative selection:bg-[#5f42ff]/30 selection:text-white">
+      {/* Harmonic Subtle Hero Ambient Lighting */}
+      <div className="fixed inset-0 harmonic-ambient-glow pointer-events-none z-0" />
 
-      {/* Harmonic Header & Live Marquee */}
+      {/* Global Top Navbar */}
       <HarmonicNavbar
         activeView={activeView}
         onSelectView={setActiveView}
@@ -202,17 +224,31 @@ export default function HarmonicDashboard() {
         onTriggerScan={handleTriggerScan}
         isScanning={isScanning}
         totalCompanies={startups.length}
-        stealthCount={stealthCount}
+        stealthCount={startups.filter((s) => s.stealthStatus).length}
       />
 
-      <HarmonicTickerMarquee />
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-[#141722] border border-white/10 text-white text-xs shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-bottom duration-200">
+          <Sparkles className="w-4 h-4 text-[#a594fd]" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
-      {/* Main Workspace Canvas */}
-      <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6 relative z-10">
-        {/* VIEW 1: HARMONIC SCOUT DISCOVERY (DEFAULT) */}
+      {/* Main Workspace View Container */}
+      <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 sm:px-6 py-6 z-10 relative">
+        {/* VIEW 1: SCOUT (Harmonic Flagship) */}
         {activeView === "scout" && (
-          <div className="space-y-5 animate-in fade-in duration-200">
-            {/* Filter & Query Builder */}
+          <div className="space-y-5">
+            {/* Harmonic Scout AI Prompt Bar */}
+            <HarmonicScoutPrompt
+              onSearch={setSearchQuery}
+              onSelectPreset={handleSelectPreset}
+              currentQuery={searchQuery}
+              totalCompanies={startups.length}
+            />
+
+            {/* Filter Toolbar */}
             <HarmonicFilterBar
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
@@ -231,67 +267,64 @@ export default function HarmonicDashboard() {
               onResetFilters={handleResetFilters}
             />
 
-            {/* Sub-view: Table View */}
+            {/* Content Mode Switcher: Table or Cards or Pipeline */}
             {viewMode === "table" && (
               <HarmonicCompanyTable
                 startups={filteredStartups}
-                onSelectStartup={(s) => setSelectedStartup(s)}
-                onOpenOutreach={(s) => setOutreachStartup(s)}
-                onOpenMemo={(s) => setMemoStartup(s)}
+                onSelectStartup={setSelectedStartup}
+                onOpenOutreach={setOutreachStartup}
+                onOpenMemo={setMemoStartup}
                 onSyncCRM={handleSyncCRM}
               />
             )}
 
-            {/* Sub-view: Cards View */}
             {viewMode === "cards" && (
               <HarmonicCompanyCards
                 startups={filteredStartups}
-                onSelectStartup={(s) => setSelectedStartup(s)}
-                onOpenOutreach={(s) => setOutreachStartup(s)}
-                onOpenMemo={(s) => setMemoStartup(s)}
+                onSelectStartup={setSelectedStartup}
+                onOpenOutreach={setOutreachStartup}
+                onOpenMemo={setMemoStartup}
                 onSyncCRM={handleSyncCRM}
               />
             )}
 
-            {/* Sub-view: Kanban View */}
             {viewMode === "kanban" && (
-              <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-3 overflow-x-auto pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3.5 overflow-x-auto pb-4">
                 {PIPELINE_COLUMNS.map((col) => {
-                  const items = filteredStartups.filter((s) => s.pipelineStatus === col.id);
+                  const stageStartups = filteredStartups.filter((s) => s.pipelineStatus === col.id);
                   return (
                     <div
                       key={col.id}
-                      className="rounded-2xl bg-[#080d17]/95 border border-white/[0.08] p-3 space-y-3 min-w-[200px] backdrop-blur-md"
+                      className="rounded-xl bg-[#10121a] border border-white/[0.08] p-3 flex flex-col min-w-[200px]"
                     >
-                      <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                        <span className={`text-[11px] font-mono font-bold ${col.color}`}>
+                      <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-white/[0.06]">
+                        <span className={`text-[11px] font-bold tracking-wider ${col.color}`}>
                           {col.label}
                         </span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-neutral-400">
-                          {items.length}
+                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/5 text-neutral-400">
+                          {stageStartups.length}
                         </span>
                       </div>
-                      <div className="space-y-2.5">
-                        {items.map((item) => (
+
+                      <div className="space-y-2 flex-1">
+                        {stageStartups.map((st) => (
                           <div
-                            key={item.id}
-                            onClick={() => setSelectedStartup(item)}
-                            className="p-3 rounded-xl bg-[#0c1220] hover:bg-[#121b30] border border-white/5 hover:border-emerald-500/40 cursor-pointer space-y-2 transition-all shadow-md"
+                            key={st.id}
+                            onClick={() => setSelectedStartup(st)}
+                            className="p-3 rounded-lg bg-[#141722] hover:bg-[#1a1e2d] border border-white/[0.06] hover:border-white/[0.14] transition-all cursor-pointer group space-y-1.5"
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-xs text-white truncate max-w-[120px]">
-                                {item.name}
+                              <span className="font-bold text-xs text-white group-hover:text-[#a594fd] transition-colors">
+                                {st.name}
                               </span>
-                              <span className="text-[10px] font-mono text-emerald-400 font-bold">
-                                {item.evaluation.matchScore}%
+                              <span className="text-[10px] font-mono text-[#a594fd]">
+                                {st.evaluation.matchScore}%
                               </span>
                             </div>
-                            <p className="text-[11px] text-neutral-400 line-clamp-2">
-                              {item.oneLiner}
-                            </p>
-                            <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500 pt-1 border-t border-white/5">
-                              <span>+{item.githubStars7d} ⭐</span>
-                              <span>{item.countryCode}</span>
+                            <p className="text-[11px] text-neutral-400 line-clamp-1">{st.oneLiner}</p>
+                            <div className="flex items-center justify-between pt-1 text-[10px] text-neutral-500">
+                              <span>+{st.githubStars7d} ⭐</span>
+                              <span>{st.estimatedStage}</span>
                             </div>
                           </div>
                         ))}
@@ -304,90 +337,96 @@ export default function HarmonicDashboard() {
           </div>
         )}
 
-        {/* VIEW 2: TACTICAL AI RADAR 360° */}
+        {/* VIEW 2: TACTICAL RADAR & TALENT DNA */}
         {activeView === "radar" && (
-          <div className="animate-in fade-in duration-200">
-            <HarmonicRadarVisualizer
-              startups={startups}
-              onSelectStartup={(s) => setSelectedStartup(s)}
-            />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <HarmonicRadarVisualizer
+                startups={filteredStartups}
+                onSelectStartup={setSelectedStartup}
+              />
+              <HarmonicNetworkGraph
+                startups={filteredStartups}
+                onSelectStartup={setSelectedStartup}
+              />
+            </div>
           </div>
         )}
 
-        {/* VIEW 3: TALENT DNA & OVERLAP TOPOLOGY GRAPH */}
-        {activeView === "network" && (
-          <div className="animate-in fade-in duration-200">
-            <HarmonicNetworkGraph
-              startups={startups}
-              onSelectStartup={(s) => setSelectedStartup(s)}
-            />
-          </div>
-        )}
-
-        {/* VIEW 4: LIVE SIGNALS & RADAR FEED */}
+        {/* VIEW 3: LIVE SIGNALS */}
         {activeView === "signals" && (
-          <div className="animate-in fade-in duration-200">
+          <div className="space-y-4 max-w-4xl mx-auto">
             <HarmonicSignalsFeed
               startups={startups}
-              onSelectStartup={(s) => setSelectedStartup(s)}
+              onSelectStartup={setSelectedStartup}
             />
           </div>
         )}
 
-        {/* VIEW 5: THESIS WEIGHTING MATRIX */}
+        {/* VIEW 4: THESIS MATRIX */}
         {activeView === "thesis" && (
-          <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-200">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="p-6 rounded-2xl bg-[#10121a] border border-white/[0.08] shadow-xl space-y-2">
+              <div className="flex items-center gap-2">
+                <Sliders className="w-5 h-5 text-[#5f42ff]" />
+                <h3 className="text-base font-bold text-white">Investment Thesis Weight Matrix</h3>
+              </div>
+              <p className="text-xs text-neutral-400">
+                Ajusta las ponderaciones del algoritmo multivariante en tiempo real para recomputar el Match Score de todo el portafolio.
+              </p>
+            </div>
             <ThesisMatrixSlider onWeightsChange={handleWeightsChange} />
           </div>
         )}
 
-        {/* VIEW 6: DEAL PIPELINE (FULL KANBAN) */}
+        {/* VIEW 5: PIPELINE KANBAN */}
         {activeView === "kanban" && (
-          <div className="space-y-4 animate-in fade-in duration-200">
-            <div className="flex items-center justify-between font-mono text-xs text-neutral-400">
-              <span className="font-bold text-white text-sm">
-                Pipeline de Acuerdos (7 Estados de Trabajo VC)
-              </span>
-              <span>Arrastra o aprueba deals para sincronizar con Attio CRM</span>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-[#10121a] border border-white/[0.08]">
+              <div>
+                <h3 className="text-sm font-bold text-white">Deal Flow Pipeline & CRM Sync</h3>
+                <p className="text-xs text-neutral-400">
+                  Arrastra o mueve las oportunidades entre estados con sincronización en tiempo real a Attio CRM.
+                </p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-3 overflow-x-auto pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3.5 overflow-x-auto pb-4">
               {PIPELINE_COLUMNS.map((col) => {
-                const items = startups.filter((s) => s.pipelineStatus === col.id);
+                const stageStartups = startups.filter((s) => s.pipelineStatus === col.id);
                 return (
                   <div
                     key={col.id}
-                    className="rounded-2xl bg-[#080d17]/95 border border-white/[0.08] p-3 space-y-3 min-w-[200px] backdrop-blur-md"
+                    className="rounded-xl bg-[#10121a] border border-white/[0.08] p-3 flex flex-col min-w-[200px]"
                   >
-                    <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                      <span className={`text-[11px] font-mono font-bold ${col.color}`}>
+                    <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-white/[0.06]">
+                      <span className={`text-[11px] font-bold tracking-wider ${col.color}`}>
                         {col.label}
                       </span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-neutral-400">
-                        {items.length}
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/5 text-neutral-400">
+                        {stageStartups.length}
                       </span>
                     </div>
-                    <div className="space-y-2.5">
-                      {items.map((item) => (
+
+                    <div className="space-y-2 flex-1">
+                      {stageStartups.map((st) => (
                         <div
-                          key={item.id}
-                          onClick={() => setSelectedStartup(item)}
-                          className="p-3 rounded-xl bg-[#0c1220] hover:bg-[#121b30] border border-white/5 hover:border-emerald-500/40 cursor-pointer space-y-2 transition-all shadow-md"
+                          key={st.id}
+                          onClick={() => setSelectedStartup(st)}
+                          className="p-3 rounded-lg bg-[#141722] hover:bg-[#1a1e2d] border border-white/[0.06] hover:border-white/[0.14] transition-all cursor-pointer group space-y-1.5"
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-xs text-white truncate max-w-[120px]">
-                              {item.name}
+                            <span className="font-bold text-xs text-white group-hover:text-[#a594fd] transition-colors">
+                              {st.name}
                             </span>
-                            <span className="text-[10px] font-mono text-emerald-400 font-bold">
-                              {item.evaluation.matchScore}%
+                            <span className="text-[10px] font-mono text-[#a594fd]">
+                              {st.evaluation.matchScore}%
                             </span>
                           </div>
-                          <p className="text-[11px] text-neutral-400 line-clamp-2">
-                            {item.oneLiner}
-                          </p>
-                          <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500 pt-1 border-t border-white/5">
-                            <span>+{item.githubStars7d} ⭐</span>
-                            <span>{item.countryCode}</span>
+                          <p className="text-[11px] text-neutral-400 line-clamp-1">{st.oneLiner}</p>
+                          <div className="flex items-center justify-between pt-1 text-[10px] text-neutral-500">
+                            <span>+{st.githubStars7d} ⭐</span>
+                            <span>{st.estimatedStage}</span>
                           </div>
                         </div>
                       ))}
@@ -400,54 +439,51 @@ export default function HarmonicDashboard() {
         )}
       </main>
 
-      {/* Harmonic Dossier Inspection Modal */}
-      <HarmonicDossierModal
+      {/* Harmonic Slide-Over Dossier Drawer */}
+      <HarmonicDossierDrawer
         startup={selectedStartup}
         onClose={() => setSelectedStartup(null)}
-        onApproveOutreach={(s) => {
+        onApproveOutreach={(st) => {
           setSelectedStartup(null);
-          setOutreachStartup(s);
-          handleUpdateStage(s.id, "OUTREACH_PENDING");
+          setOutreachStartup(st);
         }}
         onSyncCRM={handleSyncCRM}
-        onGenerateMemo={(s) => {
+        onGenerateMemo={(st) => {
           setSelectedStartup(null);
-          setMemoStartup(s);
+          setMemoStartup(st);
         }}
         onRejectFeedback={handleRejectFeedback}
       />
 
-      {/* Outreach Copywriter Modal (<150 words) */}
-      <OutreachModal
-        isOpen={!!outreachStartup}
-        startup={outreachStartup}
-        onClose={() => setOutreachStartup(null)}
-      />
-
-      {/* Executive IC Memo Modal */}
+      {/* IC Memo Modal */}
       <MemoModal
-        isOpen={!!memoStartup}
         startup={memoStartup}
+        isOpen={!!memoStartup}
         onClose={() => setMemoStartup(null)}
       />
 
-      {/* Command Palette (⌘K) */}
+      {/* Outreach Email Modal */}
+      <OutreachModal
+        startup={outreachStartup}
+        isOpen={!!outreachStartup}
+        onClose={() => setOutreachStartup(null)}
+      />
+
+      {/* Quick Command Palette (⌘K) */}
       <CommandPalette
         isOpen={isCommandOpen}
         onClose={() => setIsCommandOpen(false)}
         startups={startups}
-        onSelectStartup={(s) => setSelectedStartup(s)}
+        onSelectStartup={(st) => {
+          setIsCommandOpen(false);
+          setSelectedStartup(st);
+        }}
         onTriggerScan={handleTriggerScan}
-        onFilterHighFit={() => setMinScore(85)}
+        onFilterHighFit={() => {
+          setIsCommandOpen(false);
+          setMinScore(85);
+        }}
       />
-
-      {/* Floating System Toast */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-[#0e1422] border border-emerald-500/40 text-emerald-300 font-mono text-xs shadow-2xl glow-emerald animate-in slide-in-from-bottom duration-300">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
     </div>
   );
 }
