@@ -67,10 +67,10 @@ export function HarmonicScoutPrompt({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-[#040508] tracking-tight">
-                  Scout
+                  Pando Scout
                 </h2>
                 <span className="text-xs text-[#6f727a] font-normal">
-                  AI that knows startups
+                  AI Startup Discovery & Signals
                 </span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#f1edff] text-[#5f42ff] border border-[#5f42ff]/20 font-semibold">
                   Autonomous

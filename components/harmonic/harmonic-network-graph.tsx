@@ -32,7 +32,7 @@ export function HarmonicNetworkGraph({
               </span>
             </h2>
             <p className="text-xs text-[#6f727a]">
-              Mapeo de procedencia de fundadores y tiempo compartido en empresas anteriores (Harmonic Talent DNA).
+              Mapeo de procedencia de fundadores y tiempo compartido en empresas anteriores (Pando Talent DNA).
             </p>
           </div>
         </div>

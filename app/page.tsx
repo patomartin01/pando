@@ -8,6 +8,7 @@ import { sendSlackDealAlert } from "@/lib/engine/slack-webhook";
 
 // Harmonic UI Components
 import { HarmonicNavbar, HarmonicNavView } from "@/components/harmonic/harmonic-navbar";
+import { HarmonicSidebar } from "@/components/harmonic/harmonic-sidebar";
 import { HarmonicScoutPrompt } from "@/components/harmonic/harmonic-scout-prompt";
 import { HarmonicFilterBar } from "@/components/harmonic/harmonic-filter-bar";
 import { HarmonicCompanyTable } from "@/components/harmonic/harmonic-company-table";
@@ -67,6 +68,7 @@ export default function HarmonicDashboard() {
   const [minScore, setMinScore] = useState(0);
 
   // UI state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -212,31 +214,48 @@ export default function HarmonicDashboard() {
   }, [startups, searchQuery, selectedVertical, selectedStage, selectedSignalType, minScore]);
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] text-[#040508] flex flex-col font-sans relative selection:bg-[#5f42ff]/20 selection:text-[#040508]">
+    <div className="min-h-screen bg-[#f5f6fa] text-[#040508] flex font-sans relative selection:bg-[#5f42ff]/20 selection:text-[#040508]">
       {/* Harmonic Subtle Hero Ambient Lighting */}
       <div className="fixed inset-0 harmonic-ambient-glow pointer-events-none z-0" />
 
-      {/* Global Top Navbar */}
-      <HarmonicNavbar
+      {/* Left Navigation Sidebar */}
+      <HarmonicSidebar
+        isOpen={isSidebarOpen}
+        onToggle={() => setIsSidebarOpen((prev) => !prev)}
         activeView={activeView}
         onSelectView={setActiveView}
-        onOpenCommand={() => setIsCommandOpen(true)}
-        onTriggerScan={handleTriggerScan}
-        isScanning={isScanning}
+        onSelectFilterPreset={handleSelectPreset}
         totalCompanies={startups.length}
         stealthCount={startups.filter((s) => s.stealthStatus).length}
+        highConvictionCount={startups.filter((s) => s.evaluation.matchScore >= 85).length}
+        onOpenCommand={() => setIsCommandOpen(true)}
       />
 
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-full bg-[#040508] text-white text-xs shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-bottom duration-200">
-          <Sparkles className="w-4 h-4 text-[#5f42ff]" />
-          <span className="font-medium">{toastMessage}</span>
-        </div>
-      )}
+      {/* Main Content Column */}
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen">
+        {/* Global Top Navbar */}
+        <HarmonicNavbar
+          activeView={activeView}
+          onSelectView={setActiveView}
+          onOpenCommand={() => setIsCommandOpen(true)}
+          onTriggerScan={handleTriggerScan}
+          isScanning={isScanning}
+          totalCompanies={startups.length}
+          stealthCount={startups.filter((s) => s.stealthStatus).length}
+          isSidebarOpen={isSidebarOpen}
+          onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+        />
 
-      {/* Main Workspace View Container */}
-      <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 sm:px-6 py-6 z-10 relative">
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-full bg-[#040508] text-white text-xs shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-bottom duration-200">
+            <Sparkles className="w-4 h-4 text-[#5f42ff]" />
+            <span className="font-medium">{toastMessage}</span>
+          </div>
+        )}
+
+        {/* Main Workspace View Container */}
+        <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 sm:px-6 py-6 z-10 relative">
         {/* VIEW 1: SCOUT (Harmonic Flagship) */}
         {activeView === "scout" && (
           <div className="space-y-5">
@@ -484,6 +503,7 @@ export default function HarmonicDashboard() {
           setMinScore(85);
         }}
       />
+      </div>
     </div>
   );
 }

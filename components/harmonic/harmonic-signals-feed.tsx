@@ -38,7 +38,7 @@ export function HarmonicSignalsFeed({
           <div className="flex items-center gap-2">
             <Radio className="w-4 h-4 text-[#38cc38] animate-pulse" />
             <h2 className="text-base font-bold text-[#040508] tracking-tight">
-              Feed de Señales Tempranas en Vivo (Harmonic Scout Radar)
+              Feed de Señales Tempranas en Vivo (Pando Scout Radar)
             </h2>
           </div>
           <p className="text-xs text-[#6f727a]">

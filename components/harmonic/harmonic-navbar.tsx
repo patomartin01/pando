@@ -15,6 +15,7 @@ import {
   Target,
   Network,
   Columns3,
+  PanelLeft,
 } from "lucide-react";
 
 export type HarmonicNavView = "scout" | "radar" | "signals" | "thesis" | "kanban";
@@ -27,6 +28,8 @@ interface HarmonicNavbarProps {
   isScanning: boolean;
   totalCompanies: number;
   stealthCount: number;
+  isSidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 export function HarmonicNavbar({
@@ -37,15 +40,27 @@ export function HarmonicNavbar({
   isScanning,
   totalCompanies,
   stealthCount,
+  isSidebarOpen = true,
+  onToggleSidebar,
 }: HarmonicNavbarProps) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[#e4e5eb] bg-white/95 backdrop-blur-md shadow-xs">
-      <div className="max-w-[1680px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-        {/* Left: Brandmark & Tagline */}
-        <div className="flex items-center gap-6">
+      <div className="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        {/* Left: Sidebar Toggle & Brandmark */}
+        <div className="flex items-center gap-4">
+          {onToggleSidebar && (
+            <button
+              onClick={onToggleSidebar}
+              aria-label="Alternar panel lateral"
+              className="p-2 rounded-xl text-[#6f727a] hover:text-[#040508] hover:bg-[#f0f1f5] border border-[#e4e5eb] transition-all cursor-pointer shadow-2xs"
+            >
+              <PanelLeft className="w-4 h-4" />
+            </button>
+          )}
+
           <div className="flex items-center gap-3">
-            {/* Harmonic Style Hex / Polygon Glyph */}
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#5f42ff] to-[#2491ff] flex items-center justify-center text-white font-black text-sm shadow-sm shadow-[#5f42ff]/25">
+            {/* Pando Hex Glyph */}
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#5f42ff] to-[#2491ff] flex items-center justify-center text-white font-black text-sm shadow-sm shadow-[#5f42ff]/25 shrink-0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="12 2 2 7 12 12 22 7 12 2" />
                 <polyline points="2 17 12 22 22 17" />
@@ -55,14 +70,14 @@ export function HarmonicNavbar({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-base font-bold tracking-tight text-[#040508]">
-                  Harmonic
+                  Pando
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#f1edff] text-[#5f42ff] border border-[#5f42ff]/20 font-semibold">
-                  Pando VC
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#f1edff] text-[#5f42ff] border border-[#5f42ff]/20 font-bold">
+                  Intelligence
                 </span>
               </div>
-              <p className="text-[11px] text-[#6f727a] font-medium">
-                Startup Database & Intelligence
+              <p className="text-[11px] text-[#6f727a] font-medium hidden sm:block">
+                Venture Intelligence & Deal Flow
               </p>
             </div>
           </div>

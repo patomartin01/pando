@@ -302,7 +302,7 @@ export function HarmonicDossierDrawer({
                 <div className="p-4 rounded-xl bg-[#f1edff] border border-[#5f42ff]/20 space-y-2">
                   <div className="flex items-center gap-2 text-xs font-semibold text-[#5f42ff]">
                     <Network className="w-4 h-4" />
-                    <span>Harmonic Talent DNA: Co-Workers Synergy Verified</span>
+                    <span>Pando Talent DNA: Co-Workers Synergy Verified</span>
                   </div>
                   <p className="text-xs text-[#494b52] leading-relaxed">
                     Founders worked together for {startup.founders[0].teamOverlapMatrix[0].yearsOverlapped} years at {startup.founders[0].teamOverlapMatrix[0].previousCompany} prior to founding {startup.name}.

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PANDO — Underground VC Deal Flow Network",
-  description: "The Underground Root Network for Global Startup Sourcing & Agentic Deal Flow",
+  title: "Pando — Venture Intelligence & Sourcing Platform",
+  description: "Autonomous startup discovery, live developer traction signals, talent DNA and deal flow pipeline.",
 };
 
 export default function RootLayout({
@@ -23,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-pando-dark text-slate-100`}>
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#f5f6fa] text-[#040508]`}>
         {children}
       </body>
     </html>
