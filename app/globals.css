@@ -3,26 +3,43 @@
 @tailwind utilities;
 
 :root {
-  --color-canvas: #090a0f;
-  --color-surface: #10121a;
-  --color-surface-hover: #151824;
-  --color-surface-active: #1a1e2d;
-  --color-border-subtle: rgba(255, 255, 255, 0.07);
-  --color-border-medium: rgba(255, 255, 255, 0.12);
-  --color-border-strong: rgba(255, 255, 255, 0.20);
+  /* Authentic Harmonic.ai Greyscale Palette */
+  --greyscale-950: #040508;
+  --greyscale-900: #16171a;
+  --greyscale-850: #212226;
+  --greyscale-800: #2d2e33;
+  --greyscale-700: #494b52;
+  --greyscale-500: #6f727a;
+  --greyscale-450: #82858c;
+  --greyscale-400: #909299;
+  --greyscale-300: #abadb3;
+  --greyscale-200: #c4c6cc;
+  --greyscale-150: #d7d9e0;
+  --greyscale-100: #e4e5eb;
+  --greyscale-50: #f0f1f5;
+  --greyscale-10: #f5f6fa;
+  --greyscale-00: #ffffff;
 
-  /* Harmonic Signature Color Palette */
-  --harmonic-primary: #5f42ff;
+  /* Harmonic Signature Solutions Accent Colors */
+  --harmonic-purple: #5f42ff;
+  --harmonic-purple-hover: #4d30f0;
+  --harmonic-purple-subtle: #f1edff;
   --harmonic-blue: #2491ff;
-  --harmonic-teal: #06b6d4;
-  --harmonic-emerald: #10b981;
-  --harmonic-amber: #f59e0b;
-  --harmonic-rose: #f43f5e;
+  --harmonic-blue-subtle: #edf6ff;
+  --harmonic-green: #38cc38;
+  --harmonic-green-subtle: #eafbe9;
+  --harmonic-orange: #fe5d45;
+  --harmonic-orange-subtle: #fef0ed;
+
+  /* App Canvas */
+  --color-canvas: #f5f6fa;
+  --color-surface: #ffffff;
+  --color-border: #e4e5eb;
 }
 
 body {
-  background-color: #090a0f;
-  color: #f8fafc;
+  background-color: var(--color-canvas);
+  color: var(--greyscale-950);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   overflow-x: hidden;
   letter-spacing: -0.011em;
@@ -32,18 +49,17 @@ body {
 .harmonic-ambient-glow {
   background: radial-gradient(
     circle at 50% -10%,
-    rgba(95, 66, 255, 0.12) 0%,
-    rgba(36, 145, 255, 0.05) 35%,
+    rgba(95, 66, 255, 0.06) 0%,
+    rgba(36, 145, 255, 0.03) 40%,
     transparent 70%
   );
 }
 
 /* Designer Clean Glass Surface */
 .harmonic-surface {
-  background: rgba(16, 18, 26, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--greyscale-100);
+  box-shadow: 0 1px 3px rgba(4, 5, 8, 0.04), 0 1px 2px rgba(4, 5, 8, 0.02);
 }
 
 .harmonic-surface-hover {
@@ -51,9 +67,8 @@ body {
 }
 
 .harmonic-surface-hover:hover {
-  background: rgba(22, 25, 36, 0.95);
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+  border-color: var(--greyscale-200);
+  box-shadow: 0 4px 16px -2px rgba(4, 5, 8, 0.08);
 }
 
 /* Harmonic Table Row Hover */
@@ -62,38 +77,38 @@ body {
 }
 
 .harmonic-row:hover {
-  background-color: rgba(255, 255, 255, 0.035);
+  background-color: #f8f9fc;
 }
 
 /* Harmonic Clean Badges */
 .badge-purple {
-  background: rgba(95, 66, 255, 0.12);
-  color: #a594fd;
-  border: 1px solid rgba(95, 66, 255, 0.25);
+  background: #f1edff;
+  color: #5f42ff;
+  border: 1px solid rgba(95, 66, 255, 0.20);
 }
 
 .badge-blue {
-  background: rgba(36, 145, 255, 0.12);
-  color: #60a5fa;
-  border: 1px solid rgba(36, 145, 255, 0.25);
+  background: #edf6ff;
+  color: #2491ff;
+  border: 1px solid rgba(36, 145, 255, 0.20);
 }
 
 .badge-emerald {
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: #eafbe9;
+  color: #16a34a;
+  border: 1px solid rgba(56, 204, 56, 0.25);
 }
 
 .badge-amber {
-  background: rgba(245, 158, 11, 0.12);
-  color: #fbbf24;
+  background: #fffbeb;
+  color: #d97706;
   border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .badge-neutral {
-  background: rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: #f0f1f5;
+  color: #494b52;
+  border: 1px solid #e4e5eb;
 }
 
 /* Custom Scrollbars */

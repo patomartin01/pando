@@ -36,43 +36,43 @@ export function MemoModal({ startup, isOpen, onClose }: MemoModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" onClick={onClose} />
 
-      <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto glass-panel border border-white/10 rounded-2xl p-6 sm:p-8 z-10 shadow-2xl animate-in zoom-in-95 duration-150 space-y-5">
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+      <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white border border-[#e4e5eb] rounded-2xl p-6 sm:p-8 z-10 shadow-2xl animate-in zoom-in-95 duration-150 space-y-5">
+        <div className="flex items-center justify-between border-b border-[#f0f1f5] pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-400">
+            <div className="p-2 rounded-xl bg-[#f1edff] border border-[#5f42ff]/30 text-[#5f42ff]">
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-mono text-sm font-bold text-white uppercase tracking-wider">
+              <h3 className="text-sm font-bold text-[#040508]">
                 One-Pager Executive Investment Memo
               </h3>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-[#6f727a]">
                 Investment Committee Brief: {startup.name} | Match: {memo.matchScore}/100
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-neutral-400 hover:text-white transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-[#6f727a] hover:text-[#040508] hover:bg-[#f0f1f5] transition-colors cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Markdown Render Container */}
-        <div className="bg-black/60 p-5 rounded-xl border border-white/10 font-mono text-xs text-neutral-200 overflow-y-auto max-h-[55vh] whitespace-pre-wrap leading-relaxed select-text">
+        <div className="bg-[#f8f9fc] p-5 rounded-2xl border border-[#e4e5eb] font-mono text-xs text-[#212226] overflow-y-auto max-h-[55vh] whitespace-pre-wrap leading-relaxed select-text shadow-2xs">
           {memo.markdownContent}
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between pt-3 border-t border-white/10">
-          <span className="text-xs font-mono text-neutral-500">
+        <div className="flex items-center justify-between pt-3 border-t border-[#f0f1f5]">
+          <span className="text-xs text-[#6f727a]">
             Formato: Markdown estándar para Notion / Attio / IC Deck
           </span>
 
           <div className="flex items-center gap-2.5">
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-white hover:bg-[#f0f1f5] text-[#040508] border border-[#e4e5eb] transition-colors cursor-pointer shadow-xs"
             >
               <Download className="w-4 h-4" />
               <span>Descargar .md</span>
@@ -80,9 +80,9 @@ export function MemoModal({ startup, isOpen, onClose }: MemoModalProps) {
 
             <button
               onClick={handleCopy}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-violet-600 hover:bg-violet-500 text-white transition-all glow-violet"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-[#040508] hover:bg-[#212226] text-white transition-all shadow-xs cursor-pointer"
             >
-              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? <Check className="w-4 h-4 text-[#38cc38]" /> : <Copy className="w-4 h-4" />}
               <span>{copied ? "Copiado al Portapapeles" : "Copiar Markdown"}</span>
             </button>
           </div>

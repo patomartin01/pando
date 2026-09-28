@@ -35,23 +35,23 @@ export function ThesisMatrixSlider({ onWeightsChange }: ThesisMatrixSliderProps)
   };
 
   return (
-    <div className="glass-panel p-5 rounded-2xl border border-white/10 space-y-4">
+    <div className="bg-white p-6 rounded-2xl border border-[#e4e5eb] shadow-xs space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#f0f1f5] pb-4">
         <div className="flex items-center gap-2">
-          <Sliders className="w-4 h-4 text-emerald-400" />
-          <h4 className="font-mono text-xs font-bold text-white uppercase tracking-wider">
+          <Sliders className="w-4 h-4 text-[#5f42ff]" />
+          <h4 className="font-bold text-xs text-[#040508] uppercase tracking-wider">
             Matriz de Ponderación de Tesis (Dynamic Weight Engine)
           </h4>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[11px] font-mono text-[#15803d] flex items-center gap-1.5 font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
             Recálculo Instantáneo (Client-Side)
           </span>
           <button
             onClick={handleReset}
-            className="text-[11px] font-mono text-neutral-400 hover:text-white flex items-center gap-1 transition-colors"
+            className="text-[11px] font-semibold text-[#6f727a] hover:text-[#040508] flex items-center gap-1 transition-colors cursor-pointer"
           >
             <RefreshCw className="w-3 h-3" />
             Reset
@@ -60,12 +60,12 @@ export function ThesisMatrixSlider({ onWeightsChange }: ThesisMatrixSliderProps)
       </div>
 
       {/* Grid of Sliders */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Team Pedigree */}
-        <div className="space-y-2 bg-black/30 p-3 rounded-xl border border-white/5">
-          <div className="flex justify-between items-center text-xs font-mono">
-            <span className="text-neutral-400">Pedigree del Equipo</span>
-            <span className="text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+        <div className="space-y-2.5 bg-[#f8f9fc] p-4 rounded-xl border border-[#e4e5eb]">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-[#494b52] font-medium">Pedigree del Equipo</span>
+            <span className="text-[#5f42ff] font-bold font-mono px-2 py-0.5 rounded-full bg-[#f1edff] border border-[#5f42ff]/30">
               {weights.teamPedigree}%
             </span>
           </div>
@@ -76,16 +76,16 @@ export function ThesisMatrixSlider({ onWeightsChange }: ThesisMatrixSliderProps)
             step="5"
             value={weights.teamPedigree}
             onChange={(e) => handleChange("teamPedigree", Number(e.target.value))}
-            className="w-full accent-emerald-500 cursor-pointer"
+            className="w-full accent-[#5f42ff] cursor-pointer"
           />
-          <p className="text-[10px] text-neutral-500 font-mono">FAANG/Staff, Exits, PhDs</p>
+          <p className="text-[10px] text-[#6f727a] font-mono">FAANG/Staff, Exits, PhDs</p>
         </div>
 
         {/* Technical Velocity */}
-        <div className="space-y-2 bg-black/30 p-3 rounded-xl border border-white/5">
-          <div className="flex justify-between items-center text-xs font-mono">
-            <span className="text-neutral-400">Velocidad de Código</span>
-            <span className="text-cyan-400 font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20">
+        <div className="space-y-2.5 bg-[#f8f9fc] p-4 rounded-xl border border-[#e4e5eb]">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-[#494b52] font-medium">Velocidad de Código</span>
+            <span className="text-[#2491ff] font-bold font-mono px-2 py-0.5 rounded-full bg-[#edf6ff] border border-[#2491ff]/30">
               {weights.technicalVelocity}%
             </span>
           </div>
@@ -96,16 +96,16 @@ export function ThesisMatrixSlider({ onWeightsChange }: ThesisMatrixSliderProps)
             step="5"
             value={weights.technicalVelocity}
             onChange={(e) => handleChange("technicalVelocity", Number(e.target.value))}
-            className="w-full accent-cyan-500 cursor-pointer"
+            className="w-full accent-[#2491ff] cursor-pointer"
           />
-          <p className="text-[10px] text-neutral-500 font-mono">Commits, PRs, Contribuidores</p>
+          <p className="text-[10px] text-[#6f727a] font-mono">Commits, PRs, Contribuidores</p>
         </div>
 
         {/* Thesis Vector Fit */}
-        <div className="space-y-2 bg-black/30 p-3 rounded-xl border border-white/5">
-          <div className="flex justify-between items-center text-xs font-mono">
-            <span className="text-neutral-400">Similitud Vectorial</span>
-            <span className="text-violet-400 font-bold px-1.5 py-0.5 rounded bg-violet-500/10 border border-violet-500/20">
+        <div className="space-y-2.5 bg-[#f8f9fc] p-4 rounded-xl border border-[#e4e5eb]">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-[#494b52] font-medium">Similitud Vectorial</span>
+            <span className="text-[#5f42ff] font-bold font-mono px-2 py-0.5 rounded-full bg-[#f1edff] border border-[#5f42ff]/30">
               {weights.thesisVectorFit}%
             </span>
           </div>
@@ -116,16 +116,16 @@ export function ThesisMatrixSlider({ onWeightsChange }: ThesisMatrixSliderProps)
             step="5"
             value={weights.thesisVectorFit}
             onChange={(e) => handleChange("thesisVectorFit", Number(e.target.value))}
-            className="w-full accent-violet-500 cursor-pointer"
+            className="w-full accent-[#5f42ff] cursor-pointer"
           />
-          <p className="text-[10px] text-neutral-500 font-mono">pgvector Cosine (3072d)</p>
+          <p className="text-[10px] text-[#6f727a] font-mono">pgvector Cosine (3072d)</p>
         </div>
 
         {/* Early Traction */}
-        <div className="space-y-2 bg-black/30 p-3 rounded-xl border border-white/5">
-          <div className="flex justify-between items-center text-xs font-mono">
-            <span className="text-neutral-400">Tracción Temprana</span>
-            <span className="text-amber-400 font-bold px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
+        <div className="space-y-2.5 bg-[#f8f9fc] p-4 rounded-xl border border-[#e4e5eb]">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-[#494b52] font-medium">Tracción Temprana</span>
+            <span className="text-[#15803d] font-bold font-mono px-2 py-0.5 rounded-full bg-[#eafbe9] border border-[#38cc38]/30">
               {weights.earlyTraction}%
             </span>
           </div>
@@ -136,9 +136,9 @@ export function ThesisMatrixSlider({ onWeightsChange }: ThesisMatrixSliderProps)
             step="5"
             value={weights.earlyTraction}
             onChange={(e) => handleChange("earlyTraction", Number(e.target.value))}
-            className="w-full accent-amber-500 cursor-pointer"
+            className="w-full accent-[#16a34a] cursor-pointer"
           />
-          <p className="text-[10px] text-neutral-500 font-mono">Estrellas, HackerNews, PH</p>
+          <p className="text-[10px] text-[#6f727a] font-mono">Estrellas, HackerNews, PH</p>
         </div>
       </div>
     </div>

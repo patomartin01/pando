@@ -74,26 +74,22 @@ export function HarmonicRadarVisualizer({
   });
 
   return (
-    <div className="relative w-full rounded-3xl bg-[#060911]/90 border border-white/[0.08] backdrop-blur-2xl p-6 overflow-hidden shadow-2xl">
-      {/* Background ambient lighting */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
-
+    <div className="relative w-full rounded-3xl bg-white border border-[#e4e5eb] p-6 overflow-hidden shadow-xs">
       {/* Header HUD */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/[0.08] relative z-10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#f0f1f5] relative z-10">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <Compass className="w-5 h-5 animate-spin-slow" />
+            <span className="p-2 rounded-xl bg-[#f1edff] text-[#5f42ff] border border-[#5f42ff]/20">
+              <Compass className="w-5 h-5" />
             </span>
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <h2 className="text-base font-bold text-[#040508] flex items-center gap-2">
                 Pando Tactical AI Radar 360°
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#eafbe9] text-[#15803d] border border-[#38cc38]/30 font-bold">
                   REAL-TIME TELEMETRY
                 </span>
               </h2>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-[#6f727a]">
                 Mapeo polar de alta convicción: el centro representa ajuste máximo de tesis (100% Fit).
               </p>
             </div>
@@ -101,7 +97,7 @@ export function HarmonicRadarVisualizer({
         </div>
 
         {/* Quick Filter Pills */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1.5 flex-wrap">
           {[
             { id: "all", label: "Todos los Objetivos" },
             { id: "high_fit", label: ">85% Alta Convicción" },
@@ -112,10 +108,10 @@ export function HarmonicRadarVisualizer({
             <button
               key={f.id}
               onClick={() => setActiveFilter(f.id)}
-              className={`px-3 py-1 rounded-xl text-xs font-mono transition-all ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 activeFilter === f.id
-                  ? "bg-emerald-500 text-black font-bold shadow-lg shadow-emerald-500/20"
-                  : "bg-white/5 hover:bg-white/10 text-neutral-300 border border-white/5"
+                  ? "bg-[#040508] text-white shadow-xs font-bold"
+                  : "bg-[#f0f1f5] hover:bg-[#e4e5eb] text-[#494b52] border border-[#e4e5eb]"
               }`}
             >
               {f.label}
@@ -128,18 +124,18 @@ export function HarmonicRadarVisualizer({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-6">
         {/* Radar Circular Display (Left 7 cols) */}
         <div className="lg:col-span-7 flex justify-center items-center relative">
-          <div className="relative w-[340px] sm:w-[460px] lg:w-[500px] h-[340px] sm:h-[460px] lg:h-[500px] rounded-full border border-emerald-500/20 bg-[#04070e] flex items-center justify-center shadow-[inset_0_0_60px_rgba(16,185,129,0.06)]">
+          <div className="relative w-[340px] sm:w-[460px] lg:w-[500px] h-[340px] sm:h-[460px] lg:h-[500px] rounded-full border border-[#d7d9e0] bg-[#f8f9fc] flex items-center justify-center shadow-inner">
             {/* Concentric rings */}
-            <div className="absolute w-[80%] h-[80%] rounded-full border border-emerald-500/15" />
-            <div className="absolute w-[60%] h-[60%] rounded-full border border-emerald-500/15" />
-            <div className="absolute w-[40%] h-[40%] rounded-full border border-emerald-500/20" />
-            <div className="absolute w-[20%] h-[20%] rounded-full border border-emerald-500/30 bg-emerald-500/[0.04]" />
+            <div className="absolute w-[80%] h-[80%] rounded-full border border-[#e4e5eb]" />
+            <div className="absolute w-[60%] h-[60%] rounded-full border border-[#e4e5eb]" />
+            <div className="absolute w-[40%] h-[40%] rounded-full border border-[#d7d9e0]" />
+            <div className="absolute w-[20%] h-[20%] rounded-full border border-[#5f42ff]/30 bg-[#5f42ff]/[0.04]" />
 
             {/* Crosshairs */}
-            <div className="absolute w-full h-[1px] bg-emerald-500/15" />
-            <div className="absolute h-full w-[1px] bg-emerald-500/15" />
-            <div className="absolute w-full h-[1px] bg-emerald-500/10 rotate-45" />
-            <div className="absolute w-full h-[1px] bg-emerald-500/10 -rotate-45" />
+            <div className="absolute w-full h-[1px] bg-[#e4e5eb]" />
+            <div className="absolute h-full w-[1px] bg-[#e4e5eb]" />
+            <div className="absolute w-full h-[1px] bg-[#f0f1f5] rotate-45" />
+            <div className="absolute w-full h-[1px] bg-[#f0f1f5] -rotate-45" />
 
             {/* Radar Sweep Beam (SVG) */}
             <svg
@@ -149,28 +145,28 @@ export function HarmonicRadarVisualizer({
             >
               <defs>
                 <linearGradient id="radarBeamGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.45" />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#5f42ff" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#5f42ff" stopOpacity="0" />
                 </linearGradient>
               </defs>
               <path
                 d="M 250 250 L 500 250 A 250 250 0 0 0 426 74 Z"
                 fill="url(#radarBeamGradient)"
               />
-              <line x1="250" y1="250" x2="500" y2="250" stroke="#34d399" strokeWidth="1.5" />
+              <line x1="250" y1="250" x2="500" y2="250" stroke="#5f42ff" strokeWidth="1.5" />
             </svg>
 
             {/* Concentric Score Labels */}
-            <span className="absolute top-[8%] text-[9px] font-mono text-emerald-500/60 font-bold">
+            <span className="absolute top-[8%] text-[9px] font-mono text-[#6f727a] font-bold">
               60% FIT
             </span>
-            <span className="absolute top-[18%] text-[9px] font-mono text-emerald-500/70 font-bold">
+            <span className="absolute top-[18%] text-[9px] font-mono text-[#6f727a] font-bold">
               75% FIT
             </span>
-            <span className="absolute top-[28%] text-[9px] font-mono text-emerald-500/80 font-bold">
+            <span className="absolute top-[28%] text-[9px] font-mono text-[#5f42ff] font-bold">
               85% FIT
             </span>
-            <span className="absolute top-[38%] text-[9px] font-mono text-emerald-400 font-bold">
+            <span className="absolute top-[38%] text-[9px] font-mono text-[#5f42ff] font-bold">
               95% FIT
             </span>
 
@@ -192,19 +188,19 @@ export function HarmonicRadarVisualizer({
                 >
                   {/* Blip Ping */}
                   {(isLit || isHovered) && (
-                    <span className="absolute -inset-2 rounded-full animate-ping opacity-75 bg-emerald-400" />
+                    <span className="absolute -inset-2 rounded-full animate-ping opacity-75 bg-[#5f42ff]" />
                   )}
 
                   {/* Blip Core */}
                   <div
                     className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] transition-all duration-300 ${
                       isHovered
-                        ? "bg-white text-black scale-150 shadow-[0_0_20px_#ffffff]"
+                        ? "bg-[#040508] text-white scale-150 shadow-lg"
                         : isLit
-                        ? "bg-emerald-400 text-black scale-125 shadow-[0_0_15px_#10b981]"
+                        ? "bg-[#5f42ff] text-white scale-125 shadow-md"
                         : isHigh
-                        ? "bg-emerald-500/90 text-white border border-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
-                        : "bg-slate-800 text-slate-300 border border-white/20"
+                        ? "bg-[#5f42ff] text-white border border-[#5f42ff]/40 shadow-xs"
+                        : "bg-white text-[#494b52] border border-[#d7d9e0]"
                     }`}
                   >
                     {startup.name.slice(0, 1)}
@@ -218,7 +214,7 @@ export function HarmonicRadarVisualizer({
                         : "opacity-0 translate-y-1"
                     }`}
                   >
-                    <span className="px-2 py-0.5 rounded-md bg-[#0e1422] border border-emerald-500/40 text-[10px] font-mono text-emerald-300 shadow-xl">
+                    <span className="px-2 py-0.5 rounded-full bg-[#040508] border border-[#212226] text-[10px] font-mono text-white shadow-xl">
                       {startup.name} ({startup.evaluation.matchScore}%)
                     </span>
                   </div>
@@ -231,57 +227,55 @@ export function HarmonicRadarVisualizer({
         {/* Tactical Dossier Card Preview (Right 5 cols) */}
         <div className="lg:col-span-5 space-y-4">
           {hoveredStartup ? (
-            <div className="p-5 rounded-2xl bg-[#090e18] border border-emerald-500/30 space-y-4 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
-
+            <div className="p-5 rounded-2xl bg-white border border-[#e4e5eb] space-y-4 shadow-sm relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">
+                  <span className="text-[10px] font-mono text-[#5f42ff] font-bold uppercase tracking-wider">
                     {hoveredStartup.primaryVertical}
                   </span>
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-[#040508] flex items-center gap-2">
                     {hoveredStartup.name}
                     {hoveredStartup.stealthStatus && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-mono">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#edf6ff] text-[#2491ff] border border-[#2491ff]/30 font-mono font-bold">
                         STEALTH
                       </span>
                     )}
                   </h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-black text-emerald-400 font-mono">
+                  <div className="text-2xl font-black text-[#5f42ff] font-mono">
                     {hoveredStartup.evaluation.matchScore}%
                   </div>
-                  <span className="text-[10px] font-mono text-neutral-400">THESIS FIT</span>
+                  <span className="text-[10px] font-mono text-[#6f727a]">THESIS FIT</span>
                 </div>
               </div>
 
-              <p className="text-xs text-neutral-300 leading-relaxed">
+              <p className="text-xs text-[#494b52] leading-relaxed">
                 {hoveredStartup.oneLiner}
               </p>
 
               {/* Signals summary */}
               <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 space-y-0.5">
-                  <span className="text-[10px] text-neutral-500">7D STARS GROWTH</span>
-                  <div className="font-bold text-emerald-400">+{hoveredStartup.githubStars7d} ⭐</div>
+                <div className="p-2.5 rounded-xl bg-[#f8f9fc] border border-[#e4e5eb] space-y-0.5">
+                  <span className="text-[10px] text-[#6f727a]">7D STARS GROWTH</span>
+                  <div className="font-bold text-[#16a34a]">+{hoveredStartup.githubStars7d} ⭐</div>
                 </div>
-                <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 space-y-0.5">
-                  <span className="text-[10px] text-neutral-500">COMMIT VELOCITY</span>
-                  <div className="font-bold text-white">{hoveredStartup.commitVelocity}</div>
+                <div className="p-2.5 rounded-xl bg-[#f8f9fc] border border-[#e4e5eb] space-y-0.5">
+                  <span className="text-[10px] text-[#6f727a]">COMMIT VELOCITY</span>
+                  <div className="font-bold text-[#040508]">{hoveredStartup.commitVelocity}</div>
                 </div>
               </div>
 
               {/* Founder Pedigree */}
               <div className="space-y-1.5">
-                <span className="text-[10px] font-mono text-neutral-400 uppercase font-bold">
+                <span className="text-[10px] text-[#6f727a] uppercase font-bold">
                   Fundadores & Pedigree:
                 </span>
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {hoveredStartup.founders.map((f) => (
                     <span
                       key={f.id}
-                      className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[11px] text-slate-200"
+                      className="px-2 py-0.5 rounded-md bg-[#f0f1f5] border border-[#e4e5eb] text-[11px] text-[#212226] font-medium"
                     >
                       {f.fullName} ({f.exCompanies.slice(0, 1).join("")})
                     </span>
@@ -290,12 +284,12 @@ export function HarmonicRadarVisualizer({
               </div>
 
               {/* Primary Evaluation Pillar */}
-              <div className="p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20 text-xs text-emerald-300 space-y-1">
+              <div className="p-3.5 rounded-xl bg-[#f1edff] border border-[#5f42ff]/20 text-xs text-[#5f42ff] space-y-1">
                 <div className="flex items-center gap-1.5 font-bold">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Por qué encaja con la Tesis:</span>
                 </div>
-                <p className="text-[11px] text-neutral-300 leading-relaxed">
+                <p className="text-[11px] text-[#212226] leading-relaxed">
                   {hoveredStartup.evaluation.summaryBullets[0]}
                 </p>
               </div>
@@ -303,19 +297,19 @@ export function HarmonicRadarVisualizer({
               {/* Inspect Button */}
               <button
                 onClick={() => onSelectStartup(hoveredStartup)}
-                className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold font-mono text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-full bg-[#040508] hover:bg-[#212226] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
               >
                 <span>Inspeccionar Dossier Completo</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </button>
             </div>
           ) : (
-            <div className="p-8 rounded-2xl bg-[#090e18]/60 border border-white/5 text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/20 animate-pulse">
+            <div className="p-8 rounded-2xl bg-white border border-[#e4e5eb] text-center space-y-3 shadow-xs">
+              <div className="w-12 h-12 rounded-full bg-[#f1edff] text-[#5f42ff] flex items-center justify-center mx-auto border border-[#5f42ff]/20">
                 <Target className="w-6 h-6" />
               </div>
-              <h4 className="text-sm font-bold text-white">Modo Radar Activo</h4>
-              <p className="text-xs text-neutral-400 leading-relaxed max-w-xs mx-auto">
+              <h4 className="text-sm font-bold text-[#040508]">Modo Radar Activo</h4>
+              <p className="text-xs text-[#6f727a] leading-relaxed max-w-xs mx-auto">
                 Pasa el cursor por cualquier objetivo en el radar o selecciona un punto para inspeccionar telemetría, señales de GitHub y pedigree de fundadores.
               </p>
             </div>

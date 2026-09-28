@@ -58,11 +58,11 @@ export function HarmonicFilterBar({
   return (
     <div className="w-full space-y-3">
       {/* Primary Filter Toolbar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 rounded-xl bg-[#10121a] border border-white/[0.08] shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3.5 rounded-2xl bg-white border border-[#e4e5eb] shadow-xs">
         {/* Left: Filter Selectors */}
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 text-xs text-neutral-400 font-medium pl-1 pr-2 border-r border-white/10 shrink-0">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-[#a594fd]" />
+          <div className="flex items-center gap-1.5 text-xs text-[#6f727a] font-semibold pl-1 pr-2.5 border-r border-[#e4e5eb] shrink-0">
+            <SlidersHorizontal className="w-3.5 h-3.5 text-[#5f42ff]" />
             <span>Filters</span>
           </div>
 
@@ -71,16 +71,16 @@ export function HarmonicFilterBar({
             <select
               value={selectedVertical}
               onChange={(e) => onSelectVertical(e.target.value)}
-              className="appearance-none bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.09] hover:border-white/[0.18] rounded-lg px-3 py-1.5 pr-8 text-xs font-medium text-neutral-200 focus:outline-none focus:border-[#5f42ff] cursor-pointer transition-colors"
+              className="appearance-none bg-[#f0f1f5] hover:bg-[#e4e5eb] border border-[#d7d9e0] rounded-xl px-3 py-1.5 pr-8 text-xs font-medium text-[#040508] focus:outline-none focus:border-[#5f42ff] cursor-pointer transition-colors shadow-2xs"
             >
-              <option value="all" className="bg-[#10121a] text-white">All Sectors</option>
-              <option value="AI Infrastructure" className="bg-[#10121a] text-white">AI Infrastructure</option>
-              <option value="Developer Tools" className="bg-[#10121a] text-white">Developer Tools</option>
-              <option value="AI Security" className="bg-[#10121a] text-white">AI Security & WAF</option>
-              <option value="Autonomous Agents" className="bg-[#10121a] text-white">Autonomous Agents</option>
-              <option value="Developer Productivity" className="bg-[#10121a] text-white">Dev Productivity</option>
+              <option value="all">All Sectors</option>
+              <option value="AI Infrastructure">AI Infrastructure</option>
+              <option value="Developer Tools">Developer Tools</option>
+              <option value="AI Security">AI Security & WAF</option>
+              <option value="Autonomous Agents">Autonomous Agents</option>
+              <option value="Developer Productivity">Dev Productivity</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#6f727a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Stage Selector */}
@@ -88,15 +88,15 @@ export function HarmonicFilterBar({
             <select
               value={selectedStage}
               onChange={(e) => onSelectStage(e.target.value)}
-              className="appearance-none bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.09] hover:border-white/[0.18] rounded-lg px-3 py-1.5 pr-8 text-xs font-medium text-neutral-200 focus:outline-none focus:border-[#5f42ff] cursor-pointer transition-colors"
+              className="appearance-none bg-[#f0f1f5] hover:bg-[#e4e5eb] border border-[#d7d9e0] rounded-xl px-3 py-1.5 pr-8 text-xs font-medium text-[#040508] focus:outline-none focus:border-[#5f42ff] cursor-pointer transition-colors shadow-2xs"
             >
-              <option value="all" className="bg-[#10121a] text-white">All Stages</option>
-              <option value="stealth" className="bg-[#10121a] text-white">Stealth Mode Only</option>
-              <option value="Pre-Seed" className="bg-[#10121a] text-white">Pre-Seed</option>
-              <option value="Seed" className="bg-[#10121a] text-white">Seed</option>
-              <option value="Series A" className="bg-[#10121a] text-white">Series A</option>
+              <option value="all">All Stages</option>
+              <option value="stealth">Stealth Mode Only</option>
+              <option value="Pre-Seed">Pre-Seed</option>
+              <option value="Seed">Seed</option>
+              <option value="Series A">Series A</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#6f727a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Signal Type */}
@@ -104,24 +104,24 @@ export function HarmonicFilterBar({
             <select
               value={selectedSignalType}
               onChange={(e) => onSelectSignalType(e.target.value)}
-              className="appearance-none bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.09] hover:border-white/[0.18] rounded-lg px-3 py-1.5 pr-8 text-xs font-medium text-neutral-200 focus:outline-none focus:border-[#5f42ff] cursor-pointer transition-colors"
+              className="appearance-none bg-[#f0f1f5] hover:bg-[#e4e5eb] border border-[#d7d9e0] rounded-xl px-3 py-1.5 pr-8 text-xs font-medium text-[#040508] focus:outline-none focus:border-[#5f42ff] cursor-pointer transition-colors shadow-2xs"
             >
-              <option value="all" className="bg-[#10121a] text-white">All Signals</option>
-              <option value="GITHUB_STAR_ACCELERATION" className="bg-[#10121a] text-white">GitHub Star Velocity</option>
-              <option value="WHOIS_STEALTH_REGISTRATION" className="bg-[#10121a] text-white">WHOIS Stealth Detections</option>
-              <option value="TALENT_DEPARTURE_SWARM" className="bg-[#10121a] text-white">Senior Talent Departures</option>
-              <option value="HACKERNEWS_SHOW_VIRAL" className="bg-[#10121a] text-white">Hacker News Viral</option>
+              <option value="all">All Signals</option>
+              <option value="GITHUB_STAR_ACCELERATION">GitHub Star Velocity</option>
+              <option value="WHOIS_STEALTH_REGISTRATION">WHOIS Stealth Detections</option>
+              <option value="TALENT_DEPARTURE_SWARM">Senior Talent Departures</option>
+              <option value="HACKERNEWS_SHOW_VIRAL">Hacker News Viral</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#6f727a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Minimum Thesis Fit */}
           <button
             onClick={() => onMinScoreChange(minScore === 85 ? 0 : 85)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
               minScore >= 85
-                ? "bg-[#5f42ff]/20 text-[#c4b5fd] border border-[#5f42ff]/40 font-semibold"
-                : "bg-white/[0.04] hover:bg-white/[0.07] text-neutral-300 border border-white/[0.09]"
+                ? "bg-[#f1edff] text-[#5f42ff] border border-[#5f42ff]/40"
+                : "bg-[#f0f1f5] hover:bg-[#e4e5eb] text-[#212226] border border-[#d7d9e0]"
             }`}
           >
             <span>&gt;85% Thesis Fit</span>
@@ -132,7 +132,7 @@ export function HarmonicFilterBar({
           {hasActiveFilters && (
             <button
               onClick={onResetFilters}
-              className="px-2.5 py-1.5 rounded-lg text-xs text-neutral-400 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1.5 rounded-xl text-xs text-[#6f727a] hover:text-[#040508] hover:bg-[#f0f1f5] transition-colors flex items-center gap-1 cursor-pointer"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset</span>
@@ -142,18 +142,18 @@ export function HarmonicFilterBar({
 
         {/* Right: View Switchers & Count */}
         <div className="flex items-center gap-3">
-          <span className="text-xs text-neutral-400 font-mono">
-            <strong className="text-white font-bold">{displayCount}</strong> of {totalCount} companies
+          <span className="text-xs text-[#6f727a] font-medium">
+            <strong className="text-[#040508] font-bold">{displayCount}</strong> of {totalCount} companies
           </span>
 
-          <div className="flex items-center p-0.5 rounded-lg bg-white/[0.04] border border-white/[0.08]">
+          <div className="flex items-center p-1 rounded-xl bg-[#f0f1f5] border border-[#e4e5eb]">
             <button
               onClick={() => onViewModeChange("table")}
               title="Table View"
-              className={`p-1.5 rounded-md transition-all cursor-pointer ${
+              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                 viewMode === "table"
-                  ? "bg-white/10 text-white shadow-sm"
-                  : "text-neutral-400 hover:text-white"
+                  ? "bg-white text-[#040508] shadow-xs font-bold"
+                  : "text-[#6f727a] hover:text-[#040508]"
               }`}
             >
               <TableIcon className="w-3.5 h-3.5" />
@@ -161,10 +161,10 @@ export function HarmonicFilterBar({
             <button
               onClick={() => onViewModeChange("cards")}
               title="Cards View"
-              className={`p-1.5 rounded-md transition-all cursor-pointer ${
+              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                 viewMode === "cards"
-                  ? "bg-white/10 text-white shadow-sm"
-                  : "text-neutral-400 hover:text-white"
+                  ? "bg-white text-[#040508] shadow-xs font-bold"
+                  : "text-[#6f727a] hover:text-[#040508]"
               }`}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
@@ -172,10 +172,10 @@ export function HarmonicFilterBar({
             <button
               onClick={() => onViewModeChange("kanban")}
               title="Pipeline Kanban"
-              className={`p-1.5 rounded-md transition-all cursor-pointer ${
+              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                 viewMode === "kanban"
-                  ? "bg-white/10 text-white shadow-sm"
-                  : "text-neutral-400 hover:text-white"
+                  ? "bg-white text-[#040508] shadow-xs font-bold"
+                  : "text-[#6f727a] hover:text-[#040508]"
               }`}
             >
               <Columns3 className="w-3.5 h-3.5" />

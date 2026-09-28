@@ -212,7 +212,7 @@ export default function HarmonicDashboard() {
   }, [startups, searchQuery, selectedVertical, selectedStage, selectedSignalType, minScore]);
 
   return (
-    <div className="min-h-screen bg-[#090a0f] text-neutral-100 flex flex-col font-sans relative selection:bg-[#5f42ff]/30 selection:text-white">
+    <div className="min-h-screen bg-[#f5f6fa] text-[#040508] flex flex-col font-sans relative selection:bg-[#5f42ff]/20 selection:text-[#040508]">
       {/* Harmonic Subtle Hero Ambient Lighting */}
       <div className="fixed inset-0 harmonic-ambient-glow pointer-events-none z-0" />
 
@@ -229,9 +229,9 @@ export default function HarmonicDashboard() {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-[#141722] border border-white/10 text-white text-xs shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-bottom duration-200">
-          <Sparkles className="w-4 h-4 text-[#a594fd]" />
-          <span>{toastMessage}</span>
+        <div className="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-full bg-[#040508] text-white text-xs shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-bottom duration-200">
+          <Sparkles className="w-4 h-4 text-[#5f42ff]" />
+          <span className="font-medium">{toastMessage}</span>
         </div>
       )}
 
@@ -295,13 +295,13 @@ export default function HarmonicDashboard() {
                   return (
                     <div
                       key={col.id}
-                      className="rounded-xl bg-[#10121a] border border-white/[0.08] p-3 flex flex-col min-w-[200px]"
+                      className="rounded-2xl bg-white border border-[#e4e5eb] p-3.5 flex flex-col min-w-[210px] shadow-xs"
                     >
-                      <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-white/[0.06]">
+                      <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#f0f1f5]">
                         <span className={`text-[11px] font-bold tracking-wider ${col.color}`}>
                           {col.label}
                         </span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/5 text-neutral-400">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#f0f1f5] text-[#494b52] font-semibold">
                           {stageStartups.length}
                         </span>
                       </div>
@@ -311,20 +311,20 @@ export default function HarmonicDashboard() {
                           <div
                             key={st.id}
                             onClick={() => setSelectedStartup(st)}
-                            className="p-3 rounded-lg bg-[#141722] hover:bg-[#1a1e2d] border border-white/[0.06] hover:border-white/[0.14] transition-all cursor-pointer group space-y-1.5"
+                            className="p-3 rounded-xl bg-[#f8f9fc] hover:bg-white border border-[#e4e5eb] hover:border-[#abadb3] transition-all cursor-pointer group space-y-1.5 shadow-2xs hover:shadow-xs"
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-xs text-white group-hover:text-[#a594fd] transition-colors">
+                              <span className="font-bold text-xs text-[#040508] group-hover:text-[#5f42ff] transition-colors">
                                 {st.name}
                               </span>
-                              <span className="text-[10px] font-mono text-[#a594fd]">
+                              <span className="text-[10px] font-mono font-bold text-[#5f42ff]">
                                 {st.evaluation.matchScore}%
                               </span>
                             </div>
-                            <p className="text-[11px] text-neutral-400 line-clamp-1">{st.oneLiner}</p>
-                            <div className="flex items-center justify-between pt-1 text-[10px] text-neutral-500">
-                              <span>+{st.githubStars7d} ⭐</span>
-                              <span>{st.estimatedStage}</span>
+                            <p className="text-[11px] text-[#494b52] line-clamp-1">{st.oneLiner}</p>
+                            <div className="flex items-center justify-between pt-1 text-[10px] text-[#6f727a]">
+                              <span className="text-[#16a34a] font-bold">+{st.githubStars7d} ⭐</span>
+                              <span className="px-1.5 py-0.2 rounded bg-[#f0f1f5] border border-[#e4e5eb]">{st.estimatedStage}</span>
                             </div>
                           </div>
                         ))}
@@ -366,12 +366,12 @@ export default function HarmonicDashboard() {
         {/* VIEW 4: THESIS MATRIX */}
         {activeView === "thesis" && (
           <div className="max-w-4xl mx-auto space-y-6">
-            <div className="p-6 rounded-2xl bg-[#10121a] border border-white/[0.08] shadow-xl space-y-2">
+            <div className="p-6 rounded-2xl bg-white border border-[#e4e5eb] shadow-xs space-y-2">
               <div className="flex items-center gap-2">
                 <Sliders className="w-5 h-5 text-[#5f42ff]" />
-                <h3 className="text-base font-bold text-white">Investment Thesis Weight Matrix</h3>
+                <h3 className="text-base font-bold text-[#040508]">Investment Thesis Weight Matrix</h3>
               </div>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-[#6f727a]">
                 Ajusta las ponderaciones del algoritmo multivariante en tiempo real para recomputar el Match Score de todo el portafolio.
               </p>
             </div>
@@ -382,10 +382,10 @@ export default function HarmonicDashboard() {
         {/* VIEW 5: PIPELINE KANBAN */}
         {activeView === "kanban" && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-[#10121a] border border-white/[0.08]">
+            <div className="flex items-center justify-between p-5 rounded-2xl bg-white border border-[#e4e5eb] shadow-xs">
               <div>
-                <h3 className="text-sm font-bold text-white">Deal Flow Pipeline & CRM Sync</h3>
-                <p className="text-xs text-neutral-400">
+                <h3 className="text-base font-bold text-[#040508]">Deal Flow Pipeline & CRM Sync</h3>
+                <p className="text-xs text-[#6f727a] mt-0.5">
                   Arrastra o mueve las oportunidades entre estados con sincronización en tiempo real a Attio CRM.
                 </p>
               </div>
@@ -397,13 +397,13 @@ export default function HarmonicDashboard() {
                 return (
                   <div
                     key={col.id}
-                    className="rounded-xl bg-[#10121a] border border-white/[0.08] p-3 flex flex-col min-w-[200px]"
+                    className="rounded-2xl bg-white border border-[#e4e5eb] p-3.5 flex flex-col min-w-[210px] shadow-xs"
                   >
-                    <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-white/[0.06]">
+                    <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#f0f1f5]">
                       <span className={`text-[11px] font-bold tracking-wider ${col.color}`}>
                         {col.label}
                       </span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/5 text-neutral-400">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#f0f1f5] text-[#494b52] font-semibold">
                         {stageStartups.length}
                       </span>
                     </div>
@@ -413,20 +413,20 @@ export default function HarmonicDashboard() {
                         <div
                           key={st.id}
                           onClick={() => setSelectedStartup(st)}
-                          className="p-3 rounded-lg bg-[#141722] hover:bg-[#1a1e2d] border border-white/[0.06] hover:border-white/[0.14] transition-all cursor-pointer group space-y-1.5"
+                          className="p-3 rounded-xl bg-[#f8f9fc] hover:bg-white border border-[#e4e5eb] hover:border-[#abadb3] transition-all cursor-pointer group space-y-1.5 shadow-2xs hover:shadow-xs"
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-xs text-white group-hover:text-[#a594fd] transition-colors">
+                            <span className="font-bold text-xs text-[#040508] group-hover:text-[#5f42ff] transition-colors">
                               {st.name}
                             </span>
-                            <span className="text-[10px] font-mono text-[#a594fd]">
+                            <span className="text-[10px] font-mono font-bold text-[#5f42ff]">
                               {st.evaluation.matchScore}%
                             </span>
                           </div>
-                          <p className="text-[11px] text-neutral-400 line-clamp-1">{st.oneLiner}</p>
-                          <div className="flex items-center justify-between pt-1 text-[10px] text-neutral-500">
-                            <span>+{st.githubStars7d} ⭐</span>
-                            <span>{st.estimatedStage}</span>
+                          <p className="text-[11px] text-[#494b52] line-clamp-1">{st.oneLiner}</p>
+                          <div className="flex items-center justify-between pt-1 text-[10px] text-[#6f727a]">
+                            <span className="text-[#16a34a] font-bold">+{st.githubStars7d} ⭐</span>
+                            <span className="px-1.5 py-0.2 rounded bg-[#f0f1f5] border border-[#e4e5eb]">{st.estimatedStage}</span>
                           </div>
                         </div>
                       ))}
